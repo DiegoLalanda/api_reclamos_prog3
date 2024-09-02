@@ -1,8 +1,13 @@
 const express = require('express');
 const app = express();
 const sequelize = require('./config/db');
-
+const usuarioRoutes = require ('./routes/usuariosTipo.routes.js');
 app.use(express.json());
+
+app.use('/api/usuariosTipo', usuarioRoutes)
+
+
+
 
 // Sincronizar la base de datos
 sequelize.sync()
