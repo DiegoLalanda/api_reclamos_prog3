@@ -1,8 +1,13 @@
 const express = require('express');
 const app = express();
 const sequelize = require('./config/db');
+const rutas = require('./routes');
 
+// Middlewares
 app.use(express.json());
+
+// Rutas
+app.use('/', rutas);
 
 // Sincronizar la base de datos
 sequelize.sync()
