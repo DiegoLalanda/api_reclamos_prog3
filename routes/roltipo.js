@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getAllUsuariosTipo,
   getUsuarioTipoById, 
+  createUsuarioTipo,
   updateUsuarioTipo,
   deleteUsuarioTipo,
 } = require('../controllers/rolController');
