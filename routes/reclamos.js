@@ -1,8 +1,10 @@
-const express = require('express');
+import express from 'express';
+import ReclamosController from '../controllers/reclamosController.js';
+
 const router = express.Router();
-const { actualizarEstadoReclamo } = require('../controllers/reclamosController');
+const reclamosController = new ReclamosController();
 
 // Ruta para actualizar el estado de un reclamo
-router.put('/reclamos/:idReclamo/estado', actualizarEstadoReclamo);
+router.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
 
-module.exports = router;
+export default router;

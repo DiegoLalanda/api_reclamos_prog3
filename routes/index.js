@@ -1,12 +1,14 @@
-const express = require('express');
+import express from 'express';
+import usuarioRoutes from './usuarios.js'; // Cambia a la sintaxis de importación ES
+import reclamosRoutes from './reclamos.js'; // Cambia a la sintaxis de importación ES
+
 const router = express.Router();
 
-// Importar las rutas
-const usuarioRoutes = require('./usuarios');
-const reclamosRoutes = require('./reclamos');
+// Definir la versión de la API
+const API_VERSION = 'v1';
 
-// Usar las rutas
-router.use('/api', usuarioRoutes);
-router.use('/api', reclamosRoutes);
+// Usar las rutas con el prefijo de versión
+router.use(`/api/${API_VERSION}`, usuarioRoutes);
+router.use(`/api/${API_VERSION}`, reclamosRoutes);
 
-module.exports = router;
+export default router; // Exporta como default
