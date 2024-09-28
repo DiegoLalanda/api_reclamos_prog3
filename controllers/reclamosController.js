@@ -1,10 +1,10 @@
 import ReclamoService from '../services/reclamosService.js';
-import EmailService from '../services/emailService.js'; 
+import EmailService from '../services/emailService.js';
 
 export default class ReclamosController {
     constructor() {
         this.reclamoService = new ReclamoService();
-        this.emailService = new EmailService(); // Instanciar EmailService
+        this.emailService = new EmailService();
     }
 
     actualizarEstadoReclamo = async (req, res) => {
@@ -18,9 +18,8 @@ export default class ReclamosController {
                 return res.status(404).json({ message: 'Reclamo no encontrado' });
             }
 
-            // Actualizar el estado del reclamo
-            reclamo.idReclamoEstado = nuevoEstado;
-            await this.reclamoService.update(reclamo);
+            // Actualizar el estado del reclamo usando `updateEstado`
+            await this.reclamoService.updateEstado(idReclamo, nuevoEstado);
 
             // Buscar el usuario creador del reclamo para enviar el correo
             const usuario = await this.reclamoService.findUsuarioById(reclamo.idUsuarioCreador);
@@ -28,17 +27,29 @@ export default class ReclamosController {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
 
+            // Obtener la descripción del nuevo estado a partir del ID
+            const estadoDescripcion = await this.reclamoService.getEstadoDescripcion(nuevoEstado);
+
+            // Obtener la descripción del tipo de reclamo a partir del ID de reclamo.tipo
+            const tipoDescripcion = await this.reclamoService.getTipoDescripcion(reclamo.idReclamoTipo);
+
             // Preparar el contexto para el correo electrónico
             const emailContext = {
                 nombre: usuario.nombre,
                 asunto: reclamo.asunto,
-                estadoDescripcion: reclamo.estado.descripcion,
-                tipoDescripcion: reclamo.tipo.descripcion,
+                estadoDescripcion: `El estado del reclamo se ha actualizado a: ${estadoDescripcion}`,
+                tipoDescripcion: tipoDescripcion || "Tipo no especificado",
                 reclamoDescripcion: reclamo.descripcion,
             };
 
             // Enviar el correo electrónico usando EmailService
-            await this.emailService.sendEmail(usuario.correoElectronico, 'Estado del reclamo actualizado', '../utils/statusChange.hbs', emailContext);
+            const templatePath = '../utils/statusChange.hbs'; // Ruta de la plantilla
+            await this.emailService.sendEmail(
+                usuario.correoElectronico,
+                'Estado del reclamo actualizado',
+                templatePath,
+                emailContext
+            );
 
             res.status(200).json({ message: 'Estado del reclamo actualizado y correo enviado' });
         } catch (error) {

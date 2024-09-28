@@ -2,6 +2,11 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 import handlebars from 'handlebars';
+import { fileURLToPath } from 'url';
+
+// Determinar el directorio base de este archivo para calcular rutas correctamente
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class EmailService {
     constructor() {
@@ -13,14 +18,18 @@ class EmailService {
                 pass: process.env.EMAIL_PASSWORD,
             },
             tls: {
-                rejectUnauthorized: false, // Solo para desarrollo
+                rejectUnauthorized: false, // Solo para desarrollo, se recomienda eliminar en producción
             },
         });
     }
 
-    // Lee y compila la plantilla de Handlebars
+    // Lee y compila la plantilla de Handlebars con la ruta correcta
     compileTemplate(templatePath, context) {
-        const templateSource = fs.readFileSync(path.resolve(templatePath), 'utf8');
+        // Calcula la ruta absoluta usando `__dirname` y `path.join`
+        const absoluteTemplatePath = path.join(__dirname, templatePath);
+
+        // Lee el archivo de plantilla y compílalo usando Handlebars
+        const templateSource = fs.readFileSync(absoluteTemplatePath, 'utf8');
         const template = handlebars.compile(templateSource);
         return template(context);
     }
