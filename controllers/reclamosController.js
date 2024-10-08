@@ -7,33 +7,79 @@ export default class ReclamosController {
         this.emailService = new EmailService();
     }
 
+    findAllReclamos = async (req, res) => {
+        try {
+            const reclamos = await this.reclamoService.findAll();
+            res.status(200).json(reclamos);
+        } catch (error) {
+            console.error('Error al obtener todos los reclamos:', error);
+            res.status(500).json({ message: 'Error al obtener todos los reclamos', error: error.message });
+        }
+    };
+
+    findByIdReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        try {
+            const reclamo = await this.reclamoService.findById(idReclamo);
+            if (!reclamo) {
+                return res.status(404).json({ message: 'Reclamo no encontrado' });
+            }
+            res.status(200).json(reclamo);
+        } catch (error) {
+            console.error('Error al obtener el reclamo:', error);
+            res.status(500).json({ message: 'Error al obtener el reclamo', error: error.message });
+        }
+    };
+
+    createReclamo = async (req, res) => {
+        const { asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador } = req.body;
+        try {
+            await this.reclamoService.create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador);
+            res.status(201).json({ message: 'Reclamo creado exitosamente' });
+        } catch (error) {
+            console.error('Error al crear el reclamo:', error);
+            res.status(500).json({ message: 'Error al crear el reclamo', error: error.message });
+        }
+    };
+
+    updateReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        const { asunto, descripcion } = req.body;
+        try {
+            await this.reclamoService.update(idReclamo, asunto, descripcion);
+            res.status(200).json({ message: 'Reclamo actualizado exitosamente' });
+        } catch (error) {
+            console.error('Error al actualizar el reclamo:', error);
+            res.status(500).json({ message: 'Error al actualizar el reclamo', error: error.message });
+        }
+    };
+
+    deleteReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        try {
+            await this.reclamoService.destroy(idReclamo);
+            res.status(200).json({ message: 'Reclamo eliminado exitosamente' });
+        } catch (error) {
+            console.error('Error al eliminar el reclamo:', error);
+            res.status(500).json({ message: 'Error al eliminar el reclamo', error: error.message });
+        }
+    };
+
     actualizarEstadoReclamo = async (req, res) => {
         const { idReclamo } = req.params;
         const { nuevoEstado } = req.body;
 
         try {
-            // Buscar el reclamo por ID
             const reclamo = await this.reclamoService.findById(idReclamo);
-            if (!reclamo) {
-                return res.status(404).json({ message: 'Reclamo no encontrado' });
-            }
+            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado' });
 
-            // Actualizar el estado del reclamo usando `updateEstado`
             await this.reclamoService.updateEstado(idReclamo, nuevoEstado);
-
-            // Buscar el usuario creador del reclamo para enviar el correo
             const usuario = await this.reclamoService.findUsuarioById(reclamo.idUsuarioCreador);
-            if (!usuario) {
-                return res.status(404).json({ message: 'Usuario no encontrado' });
-            }
+            if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
 
-            // Obtener la descripción del nuevo estado a partir del ID
             const estadoDescripcion = await this.reclamoService.getEstadoDescripcion(nuevoEstado);
-
-            // Obtener la descripción del tipo de reclamo a partir del ID de reclamo.tipo
             const tipoDescripcion = await this.reclamoService.getTipoDescripcion(reclamo.idReclamoTipo);
 
-            // Preparar el contexto para el correo electrónico
             const emailContext = {
                 nombre: usuario.nombre,
                 asunto: reclamo.asunto,
@@ -42,8 +88,7 @@ export default class ReclamosController {
                 reclamoDescripcion: reclamo.descripcion,
             };
 
-            // Enviar el correo electrónico usando EmailService
-            const templatePath = '../utils/statusChange.hbs'; // Ruta de la plantilla
+            const templatePath = '../utils/statusChange.hbs';
             await this.emailService.sendEmail(
                 usuario.correoElectronico,
                 'Estado del reclamo actualizado',
