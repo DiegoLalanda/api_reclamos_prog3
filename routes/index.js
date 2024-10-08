@@ -1,12 +1,24 @@
-const express = require('express');
+import express from 'express';
+import usuarioRoutes from './usuarios.js';
+import reclamosRoutes from './reclamos.js';
+import usuariosTipoRoutes from './usuariosTipo.js';
+import oficinasRoutes from './oficinas.js';
+import usuariosOficinasRoutes from './usuariosOficinas.js';
+import reclamosTipoRoutes from './reclamosTipo.js';
+import reclamosEstadoRoutes from './reclamosEstado.js';
+
 const router = express.Router();
-const usuariosController = require('../controllers/usuariosController');
 
-// Rutas para usuarios
-router.get('/usuarios', usuariosController.getAllUsers);
-router.get('/usuarios/:id', usuariosController.getUserById);
-router.post('/usuarios', usuariosController.createUser);
-router.put('/usuarios/:id', usuariosController.updateUser);
-router.delete('/usuarios/:id', usuariosController.deleteUser);
+// Definir la versión de la API
+const API_VERSION = 'v1';
 
-module.exports = router;
+// Usar las rutas con el prefijo de versión
+router.use(`/api/${API_VERSION}`, usuarioRoutes);
+router.use(`/api/${API_VERSION}`, reclamosRoutes);
+router.use(`/api/${API_VERSION}`, usuariosTipoRoutes);
+router.use(`/api/${API_VERSION}`, oficinasRoutes);
+router.use(`/api/${API_VERSION}`, usuariosOficinasRoutes);
+router.use(`/api/${API_VERSION}`, reclamosTipoRoutes);
+router.use(`/api/${API_VERSION}`, reclamosEstadoRoutes);
+
+export default router;
