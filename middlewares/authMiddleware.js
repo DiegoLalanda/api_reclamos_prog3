@@ -25,7 +25,7 @@ const verifyToken = (req, res, next) => {
 
 // Middleware para verificar si el usuario es administrador
 const isAdmin = (req, res, next) => {
-    if (req.user.tipoUsuario !== 'admin') {
+    if (req.user.idUsuarioTipo  !== '1') {
         return res.status(403).json({ 
             status: 'Fallo', 
             data: { error: 'Acceso denegado. Solo administradores pueden acceder a esta ruta.' } 
@@ -36,7 +36,7 @@ const isAdmin = (req, res, next) => {
 
 // Middleware para verificar si el usuario es empleado
 const isEmployee = (req, res, next) => {
-    if (req.user.tipoUsuario !== 'empleado') {
+    if (req.user.idUsuarioTipo  !== '2') {
         return res.status(403).json({ 
             status: 'Fallo', 
             data: { error: 'Acceso denegado. Solo empleados pueden acceder a esta ruta.' } 
@@ -47,7 +47,7 @@ const isEmployee = (req, res, next) => {
 
 // Middleware para verificar si el usuario es cliente
 const isClient = (req, res, next) => {
-    if (req.user.tipoUsuario !== 'cliente') {
+    if (req.user.idUsuarioTipo  !== '3') {
         return res.status(403).json({ 
             status: 'Fallo', 
             data: { error: 'Acceso denegado. Solo clientes pueden acceder a esta ruta.' } 

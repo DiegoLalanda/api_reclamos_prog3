@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = process.env.SECRET_KEY;
-const TOKEN_EXPIRATION = '2h';
+const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '2h';
 
 export default class AuthService {
     constructor(userService) {

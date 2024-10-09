@@ -42,6 +42,10 @@ Cada uno de estos componentes cuenta con rutas específicas que permiten las ope
   Crea un nuevo usuario.  
   **Campos requeridos**: `nombre`, `correoElectronico`, `contraseña`.
 
+- **POST** `/api/v1/login`  
+  Login de usuario.  
+  **Campos requeridos**: `correoElectronico`, `contraseña`.  
+
 - **PUT** `/api/v1/usuarios/:id`  
   Actualiza la información de un usuario existente.  
   **Campos opcionales**: `nombre`, `correoElectronico`, `contraseña`.
