@@ -40,6 +40,15 @@ export default class UsuariosServices {
         return rows[0]; // Retorna el primer usuario encontrado
     }
 
+    async findByEmail(correoElectronico) {
+        const connection = await connectToDatabase();
+        const [rows] = await connection.execute(
+            `SELECT * FROM usuarios WHERE correoElectronico = ?`,
+            [correoElectronico]
+        );
+        return rows[0];
+    }
+
     async create(user) {
         const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = user;
         const connection = await connectToDatabase();
