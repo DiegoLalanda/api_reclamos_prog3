@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import UsuariosServices from "../services/usuariosService.js";
 
 export default class UsuariosController {
@@ -57,11 +58,13 @@ export default class UsuariosController {
                 });
             }
 
+            const hashedPassword = await bcrypt.hash(contrasenia, 10); 
+
             const newUser = await this.service.create({
                 nombre,
                 apellido,
                 correoElectronico,
-                contrasenia, // Recuerda encriptar la contraseña antes de pasarla
+                contrasenia: hashedPassword, // Usamos la contraseña encriptada
                 idTipoUsuario,
                 imagen
             });
