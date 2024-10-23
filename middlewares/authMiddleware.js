@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 // Middleware para verificar el token JWT
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
+    const token = req.headers['authorization']?.split(' ')[1] || req.cookies.token; // Intentar obtener el token de las cookies si no está en los encabezados
 
     if (!token) {
         return res.status(403).json({ 
@@ -55,5 +55,6 @@ const isClient = (req, res, next) => {
     }
     next();
 };
+
 
 export { verifyToken, isAdmin, isEmployee, isClient };

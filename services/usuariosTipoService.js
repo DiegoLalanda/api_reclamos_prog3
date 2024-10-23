@@ -4,7 +4,7 @@ export default class UsuariosTipoService {
     // Obtener todos los tipos de usuario
     async findAll() {
         const connection = await connectToDatabase();
-        const [results] = await connection.execute('SELECT * FROM usuariosTipo');
+        const [results] = await connection.execute('SELECT * FROM usuarios_tipo');
         return results;
     }
 
@@ -12,7 +12,7 @@ export default class UsuariosTipoService {
     async findById(id) {
         const connection = await connectToDatabase();
         // Cambiado de idReclamoTipo a idUsuarioTipo
-        const [results] = await connection.execute('SELECT * FROM usuariosTipo WHERE idUsuarioTipo = ?', [id]);
+        const [results] = await connection.execute('SELECT * FROM usuarios_tipo WHERE idUsuarioTipo = ?', [id]);
         return results[0]; // Retornar el primer resultado si se encuentra
     }
 
@@ -22,7 +22,7 @@ export default class UsuariosTipoService {
         const connection = await connectToDatabase();
         // Cambiado de idReclamoTipo a idUsuarioTipo en el retorno del ID creado
         const [result] = await connection.execute(
-            'INSERT INTO usuariosTipo (descripcion, activo) VALUES (?, ?)',
+            'INSERT INTO usuarios_tipo (descripcion, activo) VALUES (?, ?)',
             [descripcion, activo]
         );
         return { idUsuarioTipo: result.insertId, descripcion, activo };
@@ -34,7 +34,7 @@ export default class UsuariosTipoService {
         const connection = await connectToDatabase();
         // Cambiado de idReclamoTipo a idUsuarioTipo
         await connection.execute(
-            'UPDATE usuariosTipo SET descripcion = ?, activo = ? WHERE idUsuarioTipo = ?',
+            'UPDATE usuarios_tipo SET descripcion = ?, activo = ? WHERE idUsuarioTipo = ?',
             [descripcion, activo, id]
         );
         return this.findById(id); // Retornar el tipo de usuario actualizado
@@ -44,6 +44,6 @@ export default class UsuariosTipoService {
     async destroy(id) {
         const connection = await connectToDatabase();
         // Cambiado de idReclamoTipo a idUsuarioTipo
-        await connection.execute('DELETE FROM usuariosTipo WHERE idUsuarioTipo = ?', [id]);
+        await connection.execute('DELETE FROM usuarios_tipo WHERE idUsuarioTipo = ?', [id]);
     }
 }

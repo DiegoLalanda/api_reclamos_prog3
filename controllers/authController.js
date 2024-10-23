@@ -14,9 +14,22 @@ export default class AuthController {
 
             const { token, user } = await authService.login(correoElectronico, contrasenia);
             
-            res.status(200).json({ status: "OK", data: { token, user } });
+            // Configurar la cookie del token JWT
+            res.cookie('token', token, {
+                httpOnly: true, // Hace que la cookie sea inaccesible desde JavaScript en el navegador
+                secure: process.env.NODE_ENV === 'production', // Solo usar en conexiones seguras en producción
+                maxAge: 1000 * 60 * 60 * 2 // Tiempo de expiración, 2 horas (ajustable)
+            });
+
+            // Retornar el usuario, puedes incluir el tipo de usuario aquí si lo deseas
+            res.status(200).json({ status: "OK", data: { user } });
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
+    };
+
+    logout = (req, res) => {
+        res.clearCookie('token'); // Eliminar la cookie
+        res.status(200).json({ status: "OK", data: { message: "Sesión cerrada exitosamente." } });
     };
 }
