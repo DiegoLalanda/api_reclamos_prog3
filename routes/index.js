@@ -1,14 +1,24 @@
-const express = require('express');
+import express from 'express';
+import usuarioRoutes from './usuarios.js';
+import reclamosRoutes from './reclamos.js';
+import usuariosTipoRoutes from './usuariosTipo.js';
+import oficinasRoutes from './oficinas.js';
+import usuariosOficinasRoutes from './usuariosOficinas.js';
+import reclamosTipoRoutes from './reclamosTipo.js';
+import reclamosEstadoRoutes from './reclamosEstado.js';
+
 const router = express.Router();
 
-// Importar las rutas
-const usuarioRoutes = require('./usuarios');
-const reclamosRoutes = require('./reclamos');
-const rolTiposRoutes = require('./roltipo'); // Importa las rutas de rolTipos
+// Definir la versión de la API
+const API_VERSION = 'v1';
 
-// Usar las rutas
-router.use('/api/usuarios', usuarioRoutes); // Asegúrate de definir los endpoints correctamente
-router.use('/api/reclamos', reclamosRoutes); // Asegúrate de definir los endpoints correctamente
-router.use('/api/roltipo', rolTiposRoutes); // Define la ruta para rolTipos
+// Usar las rutas con el prefijo de versión
+router.use(`/api/${API_VERSION}`, usuarioRoutes);
+router.use(`/api/${API_VERSION}`, reclamosRoutes);
+router.use(`/api/${API_VERSION}`, usuariosTipoRoutes);
+router.use(`/api/${API_VERSION}`, oficinasRoutes);
+router.use(`/api/${API_VERSION}`, usuariosOficinasRoutes);
+router.use(`/api/${API_VERSION}`, reclamosTipoRoutes);
+router.use(`/api/${API_VERSION}`, reclamosEstadoRoutes);
 
-module.exports = router;
+export default router;

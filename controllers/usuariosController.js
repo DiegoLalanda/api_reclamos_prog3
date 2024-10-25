@@ -1,109 +1,112 @@
-const { Usuario, UsuarioTipo } = require('../models');
+import bcrypt from 'bcrypt';
+import UsuariosServices from "../services/usuariosService.js";
 
-// Crear un nuevo usuario
-const createUser = async (req, res) => {
-  try {
-    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
-
-    const newUser = await Usuario.create({
-      nombre,
-      apellido,
-      correoElectronico,
-      contrasenia, // Recuerda que deberías encriptar la contraseña antes de guardarla
-      idTipoUsuario,
-      imagen
-    });
-
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al crear el usuario', error });
-  }
-};
-
-// Obtener todos los usuarios
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await Usuario.findAll({
-      include: { model: UsuarioTipo, attributes: ['descripcion'] }
-    });
-
-    res.status(200).json(users);
-  } catch (error) {
-    console.error("Error al obtener los usuarios:", error);
-    res.status(500).json({
-      message: "Error al obtener los usuarios",
-      error: error.message || error,
-    });
-  }
-};
-
-// Obtener un usuario por ID
-const getUserById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await Usuario.findByPk(id, {
-      include: { model: UsuarioTipo, attributes: ['descripcion'] }
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+export default class UsuariosController {
+    constructor() {
+        this.service = new UsuariosServices();  // Inicializa el servicio
     }
 
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener el usuario', error });
-  }
-};
+    // Obtener todos los usuarios
+    findAll = async (req, res) => {
+        try {
+            // Parámetros de paginación y filtros
+            const { nombre, apellido, limit, offset, order, asc } = req.query;
 
-// Actualizar un usuario
-const updateUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { nombre, apellido, correoElectronico, idTipoUsuario, imagen } = req.body;
+            const pLimit = limit ? Number(limit) : 0;
+            const pOffset = offset ? Number(offset) : 0;
+            const pOrder = order || "idUsuario";
+            const pAsc = asc === "false" ? false : true;
 
-    const user = await Usuario.findByPk(id);
+            const users = await this.service.findAll({ nombre, apellido }, pLimit, pOffset, pOrder, pAsc);
 
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
+            res.status(200).json(users);
+        } catch (error) {
+            res.status(500).json({ status: "Fallo", data: { error: error.message || error } });
+        }
+    };
 
-    user.nombre = nombre;
-    user.apellido = apellido;
-    user.correoElectronico = correoElectronico;
-    user.idTipoUsuario = idTipoUsuario;
-    user.imagen = imagen;
+    // Obtener un usuario por ID
+    findById = async (req, res) => {
+        try {
+            const { id } = req.params;
 
-    await user.save();
+            if (!id) {
+                return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
+            }
 
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar el usuario', error });
-  }
-};
+            const user = await this.service.findById(id);
 
-// Eliminar un usuario
-const deleteUser = async (req, res) => {
-  try {
-    const { id } = req.params;
+            if (!user) {
+                return res.status(404).json({ status: "Fallo", data: { error: "Usuario no encontrado." } });
+            }
 
-    const user = await Usuario.findByPk(id);
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(500).json({ status: "Fallo", data: { error: error.message || error } });
+        }
+    };
 
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
+    // Crear un nuevo usuario
+    create = async (req, res) => {
+        try {
+            const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
 
-    await user.destroy();
+            if (!nombre || !apellido || !correoElectronico || !contrasenia) {
+                return res.status(400).json({
+                    status: "Fallo",
+                    data: { error: "Uno de los siguientes datos falta o es vacío: 'nombre', 'apellido', 'correoElectronico', 'contrasenia'." }
+                });
+            }
 
-    res.status(200).json({ message: 'Usuario eliminado' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar el usuario', error });
-  }
-};
+            const hashedPassword = await bcrypt.hash(contrasenia, 10); 
 
-module.exports = {
-  createUser,
-  getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
-};
+            const newUser = await this.service.create({
+                nombre,
+                apellido,
+                correoElectronico,
+                contrasenia: hashedPassword, // Usamos la contraseña encriptada
+                idTipoUsuario,
+                imagen
+            });
+
+            res.status(201).json({ status: "OK", data: newUser });
+        } catch (error) {
+            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
+        }
+    };
+
+    // Actualizar un usuario
+    update = async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { nombre, apellido, correoElectronico, idTipoUsuario, imagen } = req.body;
+
+            if (!id) {
+                return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
+            }
+
+            const updatedUser = await this.service.update(id, { nombre, apellido, correoElectronico, idTipoUsuario, imagen });
+
+            res.status(200).json({ status: "OK", data: updatedUser });
+        } catch (error) {
+            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
+        }
+    };
+
+    // Eliminar un usuario
+    destroy = async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
+            }
+
+            await this.service.destroy(id);
+
+            res.status(204).send();  // No es necesario enviar contenido al eliminar
+        } catch (error) {
+            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
+        }
+    };
+}
