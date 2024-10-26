@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import passport from 'passport';
+import UsuariosServices from '../services/usuariosService.js';
 
 // Middleware para verificar el token JWT
 const verifyToken = (req, res, next) => {
@@ -23,16 +25,35 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Middleware para verificar si el usuario es administrador
-const isAdmin = (req, res, next) => {
-    if (req.user.idUsuarioTipo  !== '1') {
-        return res.status(403).json({ 
-            status: 'Fallo', 
-            data: { error: 'Acceso denegado. Solo administradores pueden acceder a esta ruta.' } 
+const isAdmin = async (req, res, next) => {
+    try {
+        if (!req.isAuthenticated || !req.isAuthenticated()) {
+            return res.status(401).json({
+                status: 'Fallo',
+                data: { error: 'No autenticado.' }
+            });
+        }
+
+        const { idUsuario } = req.user; // Desestructuramos el idUsuario
+        const usuariosService = new UsuariosServices();
+        const user = await usuariosService.findById(idUsuario);
+
+        if (user?.idTipoUsuario === 1) { // Usamos el operador de encadenamiento opcional
+            return next(); // El usuario es administrador, puede continuar
+        }
+
+        return res.status(403).json({
+            status: 'Fallo',
+            data: { error: 'Acceso denegado. Solo administradores pueden acceder a esta ruta.' }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Fallo',
+            data: { error: 'Error del servidor.' }
         });
     }
-    next();
 };
+
 
 // Middleware para verificar si el usuario es empleado
 const isEmployee = (req, res, next) => {

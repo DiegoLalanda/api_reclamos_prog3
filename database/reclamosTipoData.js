@@ -28,9 +28,9 @@ export default class ReclamosTipoData {
         await connection.execute(query, [reclamoTipo.descripcion, reclamoTipo.activo, id]);
     }
 
-    static async delete(id) {
+    static async updateStatus(id, activo) {
         const connection = await connectToDatabase();
-        const query = 'DELETE FROM reclamos_tipo WHERE idReclamoTipo = ?';
-        await connection.execute(query, [id]);
+        const query = 'UPDATE reclamos_tipo SET activo = ? WHERE idReclamoTipo = ?';
+        await connection.execute(query, [activo, id]);
     }
 }

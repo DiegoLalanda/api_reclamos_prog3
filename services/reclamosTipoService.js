@@ -18,7 +18,7 @@ export default class ReclamosTipoService {
         await ReclamosTipoData.update(id, reclamoTipo);
     }
 
-    async delete(id) {
-        await ReclamosTipoData.delete(id);
+    async updateStatus(id, activo) {
+        await ReclamosTipoData.updateStatus(id, activo);
     }
 }
