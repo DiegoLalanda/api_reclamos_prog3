@@ -45,14 +45,3 @@ export const updateReclamosTipo = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-export const updateReclamosTipoStatus = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { activo } = req.body; // Asegúrate de que el estado se envíe en el cuerpo de la solicitud
-        await reclamosTipoService.updateStatus(id, activo);
-        res.status(200).json({ message: `Estado del Reclamo Tipo con id ${id} actualizado correctamente` });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};

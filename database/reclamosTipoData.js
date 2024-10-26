@@ -27,10 +27,4 @@ export default class ReclamosTipoData {
         const query = 'UPDATE reclamos_tipo SET descripcion = ?, activo = ? WHERE idReclamoTipo = ?';
         await connection.execute(query, [reclamoTipo.descripcion, reclamoTipo.activo, id]);
     }
-
-    static async updateStatus(id, activo) {
-        const connection = await connectToDatabase();
-        const query = 'UPDATE reclamos_tipo SET activo = ? WHERE idReclamoTipo = ?';
-        await connection.execute(query, [activo, id]);
-    }
 }

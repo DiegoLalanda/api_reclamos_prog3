@@ -17,8 +17,4 @@ export default class OficinaService {
     async update(id, oficina) {
         await OficinasData.update(id, oficina);
     }
-
-    async delete(id) {
-        await OficinasData.delete(id);
-    }
 }

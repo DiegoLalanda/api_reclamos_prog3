@@ -28,12 +28,6 @@ export default class ReclamosData {
         await connection.execute(query, [asunto, descripcion, idReclamo]);
     }
 
-    static async destroy(idReclamo) {
-        const connection = await connectToDatabase();
-        const query = 'DELETE FROM reclamos WHERE idReclamo = ?';
-        await connection.execute(query, [idReclamo]);
-    }
-
     static async updateEstado(idReclamo, nuevoEstado) {
         const connection = await connectToDatabase();
         const query = 'UPDATE reclamos SET idReclamoEstado = ? WHERE idReclamo = ?';

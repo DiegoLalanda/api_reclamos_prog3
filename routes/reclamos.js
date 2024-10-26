@@ -9,7 +9,6 @@ router.get('/reclamos', reclamosController.findAllReclamos);
 router.get('/reclamos/:idReclamo', reclamosController.findByIdReclamo);
 router.post('/reclamos', reclamosController.createReclamo);
 router.put('/reclamos/:idReclamo', reclamosController.updateReclamo);
-router.delete('/reclamos/:idReclamo', reclamosController.deleteReclamo);
 router.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
 
 // Ejemplo con auth middleware

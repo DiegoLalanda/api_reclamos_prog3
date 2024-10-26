@@ -5,7 +5,6 @@ import {
     getReclamosTipoById, 
     createReclamosTipo, 
     updateReclamosTipo, 
-    updateReclamosTipoStatus 
 } from '../controllers/reclamosTipoController.js';
 import { isAdmin } from '../middlewares/authMiddleware.js';
 import errorMiddleware from '../middlewares/errorMiddleware.js';

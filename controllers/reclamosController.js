@@ -54,17 +54,6 @@ export default class ReclamosController {
         }
     };
 
-    deleteReclamo = async (req, res) => {
-        const { idReclamo } = req.params;
-        try {
-            await this.reclamoService.destroy(idReclamo);
-            res.status(200).json({ message: 'Reclamo eliminado exitosamente' });
-        } catch (error) {
-            console.error('Error al eliminar el reclamo:', error);
-            res.status(500).json({ message: 'Error al eliminar el reclamo', error: error.message });
-        }
-    };
-
     actualizarEstadoReclamo = async (req, res) => {
         const { idReclamo } = req.params;
         const { nuevoEstado } = req.body;

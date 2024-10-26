@@ -6,7 +6,8 @@ const createReclamosTipoValidator = [
         .notEmpty().withMessage('La descripción es obligatoria.')
         .isLength({ max: 256 }).withMessage('La descripción no debe exceder 256 caracteres.'),
     body('activo')
-        .isBoolean().withMessage('El estado activo debe ser un valor booleano (true o false).'), // Para asegurarse de que es un booleano
+        .notEmpty().withMessage('El estado activo es obligatorio.')
+        .isInt({ min: 0, max: 1 }).withMessage('El estado activo debe ser 0 (inactivo) o 1 (activo).')
 ];
 
 // Validaciones para la actualización de un Reclamo Tipo
@@ -18,7 +19,7 @@ const updateReclamosTipoValidator = [
         .isLength({ max: 256 }).withMessage('La descripción no debe exceder 256 caracteres.'),
     body('activo')
         .optional()
-        .isBoolean().withMessage('El estado activo debe ser un valor booleano (true o false).'),
+        .isInt({ min: 0, max: 1 }).withMessage('El estado activo debe ser 0 (inactivo) o 1 (activo).')
 ];
 
 export { createReclamosTipoValidator, updateReclamosTipoValidator };
