@@ -43,14 +43,14 @@ export default class ReclamosData {
 
     static async getEstadoDescripcion(idReclamoEstado) {
         const connection = await connectToDatabase();
-        const query = 'SELECT descripcion FROM reclamosEstado WHERE idReclamoEstado = ?';
+        const query = 'SELECT descripcion FROM reclamos_estado WHERE idReclamosEstado = ?';
         const [rows] = await connection.execute(query, [idReclamoEstado]);
         return rows.length > 0 ? rows[0].descripcion : null;
     }
 
     static async getTipoDescripcion(idReclamoTipo) {
         const connection = await connectToDatabase();
-        const query = 'SELECT descripcion FROM reclamosTipo WHERE idReclamoTipo = ?';
+        const query = 'SELECT descripcion FROM reclamos_tipo WHERE idReclamosTipo = ?';
         const [rows] = await connection.execute(query, [idReclamoTipo]);
         return rows.length > 0 ? rows[0].descripcion : null;
     }

@@ -1,5 +1,6 @@
 import ReclamoService from '../services/reclamosService.js';
 import EmailService from '../services/emailService.js';
+import PDFUtils from '../utils/pdfUtils.js';
 
 export default class ReclamosController {
     constructor() {
@@ -89,6 +90,28 @@ export default class ReclamosController {
         } catch (error) {
             console.error('Error al actualizar el estado del reclamo:', error);
             res.status(500).json({ message: 'Error al actualizar el estado del reclamo', error: error.message });
+        }
+    };
+    descargarInformeReclamos = async (req, res) => {
+        try {
+            const reclamos = await this.reclamoService.findAll();
+
+            // Agregar detalles adicionales si son necesarios
+            const reclamosConDetalles = await Promise.all(
+                reclamos.map(async (reclamo) => {
+                    const estadoDescripcion = await this.reclamoService.getEstadoDescripcion(reclamo.idReclamoEstado);
+                    return { ...reclamo, estadoDescripcion };
+                })
+            );
+
+            // Generar el PDF y enviarlo como respuesta
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="informe_reclamos.pdf"');
+            await PDFUtils.generarInformeReclamos(reclamosConDetalles, res);
+
+        } catch (error) {
+            console.error('Error al generar el informe de reclamos en PDF:', error);
+            res.status(500).json({ message: 'Error al generar el informe de reclamos en PDF', error: error.message });
         }
     };
 }

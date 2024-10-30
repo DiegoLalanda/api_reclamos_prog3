@@ -10,6 +10,8 @@ router.get('/reclamos/:idReclamo', reclamosController.findByIdReclamo);
 router.post('/reclamos', reclamosController.createReclamo);
 router.put('/reclamos/:idReclamo', reclamosController.updateReclamo);
 router.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
+router.get('/informe-pdf', reclamosController.descargarInformeReclamos);
+
 
 // Ejemplo con auth middleware
 // router.post('/reclamos', verifyToken, isClient, reclamosController.create);  
