@@ -27,10 +27,4 @@ export default class OficinasData {
         const query = 'UPDATE oficinas SET nombre = ?, idReclamoTipo = ?, activo = ? WHERE idOficina = ?';
         await connection.execute(query, [oficina.nombre, oficina.idReclamoTipo, oficina.activo, id]);
     }
-
-    static async delete(id) {
-        const connection = await connectToDatabase();
-        const query = 'DELETE FROM oficinas WHERE idOficina = ?';
-        await connection.execute(query, [id]);
-    }
 }

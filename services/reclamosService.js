@@ -18,10 +18,6 @@ export default class ReclamoService {
         await ReclamosData.update(idReclamo, asunto, descripcion);
     }
 
-    async destroy(idReclamo) {
-        await ReclamosData.destroy(idReclamo);
-    }
-
     async updateEstado(idReclamo, nuevoEstado) {
         await ReclamosData.updateEstado(idReclamo, nuevoEstado);
     }

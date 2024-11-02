@@ -45,13 +45,3 @@ export const updateOficina = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-export const deleteOficina = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await oficinaService.delete(id);
-        res.status(200).json({ message: `Oficina con id ${id} eliminada correctamente` });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};

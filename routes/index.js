@@ -6,6 +6,7 @@ import oficinasRoutes from './oficinas.js';
 import usuariosOficinasRoutes from './usuariosOficinas.js';
 import reclamosTipoRoutes from './reclamosTipo.js';
 import reclamosEstadoRoutes from './reclamosEstado.js';
+import estadisticasRoutes from './estadisticas.js';
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use(`/api/${API_VERSION}`, oficinasRoutes);
 router.use(`/api/${API_VERSION}`, usuariosOficinasRoutes);
 router.use(`/api/${API_VERSION}`, reclamosTipoRoutes);
 router.use(`/api/${API_VERSION}`, reclamosEstadoRoutes);
+router.use(`/api/${API_VERSION}`, estadisticasRoutes)
 
 export default router;
