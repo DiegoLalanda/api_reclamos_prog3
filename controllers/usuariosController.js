@@ -3,13 +3,11 @@ import UsuariosServices from "../services/usuariosService.js";
 
 export default class UsuariosController {
     constructor() {
-        this.service = new UsuariosServices();  // Inicializa el servicio
+        this.service = new UsuariosServices();  
     }
 
-    // Obtener todos los usuarios
     findAll = async (req, res) => {
         try {
-            // Parámetros de paginación y filtros
             const { nombre, apellido, limit, offset, order, asc } = req.query;
 
             const pLimit = limit ? Number(limit) : 0;
@@ -25,7 +23,6 @@ export default class UsuariosController {
         }
     };
 
-    // Obtener un usuario por ID
     findById = async (req, res) => {
         try {
             const { id } = req.params;
@@ -46,36 +43,34 @@ export default class UsuariosController {
         }
     };
 
-    // Crear un nuevo usuario
     create = async (req, res) => {
         try {
-            const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
-
+            const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+    
             if (!nombre || !apellido || !correoElectronico || !contrasenia) {
                 return res.status(400).json({
                     status: "Fallo",
                     data: { error: "Uno de los siguientes datos falta o es vacío: 'nombre', 'apellido', 'correoElectronico', 'contrasenia'." }
                 });
             }
-
+    
             const hashedPassword = await bcrypt.hash(contrasenia, 10); 
-
+    
             const newUser = await this.service.create({
                 nombre,
                 apellido,
                 correoElectronico,
-                contrasenia: hashedPassword, // Usamos la contraseña encriptada
-                idTipoUsuario,
-                imagen
+                contrasenia: hashedPassword,
+                idTipoUsuario: 1,
+                imagen: imagen || null
             });
-
+    
             res.status(201).json({ status: "OK", data: newUser });
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
-    };
+    };    
 
-    // Actualizar un usuario
     update = async (req, res) => {
         try {
             const { id } = req.params;
@@ -93,7 +88,6 @@ export default class UsuariosController {
         }
     };
 
-    // Eliminar un usuario
     destroy = async (req, res) => {
         try {
             const { id } = req.params;
@@ -104,7 +98,7 @@ export default class UsuariosController {
 
             await this.service.destroy(id);
 
-            res.status(204).send();  // No es necesario enviar contenido al eliminar
+            res.status(204).send();  
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
