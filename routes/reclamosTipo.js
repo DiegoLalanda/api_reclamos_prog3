@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 import { 
     getAllReclamosTipo, 
     getReclamosTipoById, 
@@ -9,35 +8,29 @@ import {
 import { isAdmin } from '../middlewares/authMiddleware.js';
 import errorMiddleware from '../middlewares/errorMiddleware.js';
 import { createReclamosTipoValidator, updateReclamosTipoValidator } from '../validators/reclamoTipoValidator.js';
+import protectedRoutes from '../utils/protectedRoutes.js';
 
 const router = express.Router();
 
 // Rutas para tipos de reclamos protegidas
-router.get('/reclamosTipo', 
-    passport.authenticate('jwt', { session: false }), 
-    isAdmin, 
-    getAllReclamosTipo
-);
+protectedRoutes.get('/reclamosTipo', isAdmin, getAllReclamosTipo);
 
-router.get('/reclamosTipo/:id', 
-    passport.authenticate('jwt', { session: false }), 
-    isAdmin, 
-    getReclamosTipoById
-);
+protectedRoutes.get('/reclamosTipo/:id', isAdmin, getReclamosTipoById);
 
-router.post('/reclamosTipo', 
-    passport.authenticate('jwt', { session: false }), 
+protectedRoutes.post('/reclamosTipo', 
     isAdmin, 
-    createReclamosTipoValidator, // Validaciones para crear un reclamo
-    errorMiddleware,        // Middleware para manejo de errores
+    createReclamosTipoValidator, 
+    errorMiddleware,       
     createReclamosTipo
 );
 
-router.put('/reclamosTipo/:id', 
-    passport.authenticate('jwt', { session: false }), 
+protectedRoutes.put('/reclamosTipo/:id', 
     isAdmin, 
-    updateReclamosTipoValidator, // Validaciones para actualizar un reclamo
-    errorMiddleware,        // Middleware para manejo de errores
+    updateReclamosTipoValidator, 
+    errorMiddleware,       
     updateReclamosTipo
 );
+
+router.use('/secure', protectedRoutes);
+
 export default router;
