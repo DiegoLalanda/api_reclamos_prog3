@@ -41,4 +41,4 @@ const updateUsuarioValidator = [
         .isLength({ max: 256 }).withMessage('La ruta de la imagen no debe exceder 256 caracteres.')
 ];
 
-export { createUsuarioValidator, updateUsuarioValidator };
+export { registerValidator, updateUsuarioValidator };

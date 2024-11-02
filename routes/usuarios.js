@@ -3,7 +3,7 @@ import UsuariosController from '../controllers/usuariosController.js';
 import AuthController from '../controllers/authController.js';
 import { isAdmin, isClient } from '../middlewares/authMiddleware.js';
 import protectedRoutes from '../utils/protectedRoutes.js';
-import { registerValidator, updateUsuarioValidator } from './validators/usuarios.js';
+import { registerValidator, updateUsuarioValidator } from '../validators/usuarioValidator.js';
 
 const router = express.Router();
 const usuariosController = new UsuariosController(); 
