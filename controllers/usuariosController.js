@@ -97,14 +97,10 @@ export default class UsuariosController {
             if (idTipoUsuario !== undefined) updateFields.idTipoUsuario = idTipoUsuario;
             if (imagen !== undefined) updateFields.imagen = imagen;
     
-            // Imprimir los campos a actualizar para depuración
-            console.log('Campos a actualizar:', updateFields);
-    
             if (Object.keys(updateFields).length === 0) {
                 return res.status(400).json({ status: "Fallo", data: { error: "No hay campos para actualizar." } });
             }
     
-            // Verificar que el usuario existe antes de intentar actualizar
             const existingUser = await this.service.findById(id);
             if (!existingUser) {
                 return res.status(404).json({ status: "Fallo", data: { error: "Usuario no encontrado." } });
@@ -118,11 +114,6 @@ export default class UsuariosController {
         }
     };
     
-    
-    
-    
-      
-
     destroy = async (req, res) => {
         try {
             const { id } = req.params;
