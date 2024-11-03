@@ -1,16 +1,14 @@
-import connectToDatabase from '../config/db.js'; // Importa la función de conexión
+import connectToDatabase from '../config/db.js'; 
 
 export default class UsuariosServices {
     async findAll(filters, limit = 0, offset = 0, order = 'idUsuario', asc = true) {
         const { nombre, apellido } = filters;
 
-        // Establecer conexión a la base de datos
         const connection = await connectToDatabase();
         let query = `SELECT * FROM usuarios`;
         const whereClauses = [];
         const params = [];
 
-        // Añadir filtros
         if (nombre) {
             whereClauses.push(`nombre LIKE ?`);
             params.push(`%${nombre}%`);
@@ -30,14 +28,14 @@ export default class UsuariosServices {
             params.push(limit, offset);
         }
 
-        const [results] = await connection.execute(query, params); // Usar execute para consultas
+        const [results] = await connection.execute(query, params);
         return results;
     }
 
     async findById(id) {
         const connection = await connectToDatabase();
         const [rows] = await connection.execute(`SELECT * FROM usuarios WHERE idUsuario = ?`, [id]);
-        return rows[0]; // Retorna el primer usuario encontrado
+        return rows[0]; 
     }
 
     async findByEmail(correoElectronico) {
@@ -57,21 +55,60 @@ export default class UsuariosServices {
             VALUES (?, ?, ?, ?, ?, ?)`,
             [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen]
         );
-        return { idUsuario: result.insertId, ...user }; // Devuelve el nuevo usuario con su ID
+        return { idUsuario: result.insertId, ...user }; 
     }
 
     async update(id, user) {
         const { nombre, apellido, correoElectronico, idTipoUsuario, imagen } = user;
+    
         const connection = await connectToDatabase();
-        await connection.execute(
-            `UPDATE usuarios SET nombre = ?, apellido = ?, correoElectronico = ?, idTipoUsuario = ?, imagen = ?
-            WHERE idUsuario = ?`,
-            [nombre, apellido, correoElectronico, idTipoUsuario, imagen, id]
-        );
-
-        return this.findById(id); // Devuelve el usuario actualizado
+    
+        if (!id || isNaN(id)) {
+            throw new Error("ID inválido.");
+        }
+    
+        if (!nombre && !apellido && !correoElectronico && !idTipoUsuario && !imagen) {
+            throw new Error("No se proporcionaron campos para actualizar.");
+        }
+    
+        const fieldsToUpdate = [];
+        const params = [];
+    
+        if (nombre !== undefined) {
+            fieldsToUpdate.push('nombre = ?');
+            params.push(nombre);
+        }
+        if (apellido !== undefined) {
+            fieldsToUpdate.push('apellido = ?');
+            params.push(apellido);
+        }
+        if (correoElectronico !== undefined) {
+            fieldsToUpdate.push('correoElectronico = ?');
+            params.push(correoElectronico);
+        }
+        if (idTipoUsuario !== undefined) {
+            fieldsToUpdate.push('idTipoUsuario = ?');
+            params.push(idTipoUsuario);
+        }
+        if (imagen !== undefined) {
+            fieldsToUpdate.push('imagen = ?');
+            params.push(imagen);
+        }
+    
+        params.push(id);
+    
+        const query = `UPDATE usuarios SET ${fieldsToUpdate.join(', ')} WHERE idUsuario = ?`;
+    
+    
+        const [result] = await connection.execute(query, params);
+    
+        if (result.affectedRows === 0) {
+            throw new Error("No se actualizó ningún usuario. Verifica que el ID exista.");
+        }
+    
+        return this.findById(id); 
     }
-
+    
     async destroy(id) {
         const connection = await connectToDatabase();
         await connection.execute(`DELETE FROM usuarios WHERE idUsuario = ?`, [id]);

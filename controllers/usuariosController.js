@@ -26,22 +26,32 @@ export default class UsuariosController {
     findById = async (req, res) => {
         try {
             const { id } = req.params;
-
+    
             if (!id) {
                 return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
             }
-
+    
             const user = await this.service.findById(id);
-
+    
             if (!user) {
                 return res.status(404).json({ status: "Fallo", data: { error: "Usuario no encontrado." } });
             }
-
-            res.status(200).json(user);
+    
+            const isAdmin = req.user && req.user.idTipoUsuario === 1;
+    
+            const responseData = isAdmin
+                ? user 
+                : {
+                      nombre: user.nombre,
+                      apellido: user.apellido,
+                      correoElectronico: user.correoElectronico,
+                  };
+    
+            res.status(200).json({ status: "OK", data: responseData });
         } catch (error) {
             res.status(500).json({ status: "Fallo", data: { error: error.message || error } });
         }
-    };
+    };    
 
     create = async (req, res) => {
         try {
@@ -69,29 +79,49 @@ export default class UsuariosController {
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
-    };    
+    };  
 
     update = async (req, res) => {
         try {
             const { id } = req.params;
             const { nombre, apellido, correoElectronico, idTipoUsuario, imagen } = req.body;
-            const { userId, isAdmin } = req.user;
     
-            if (!id) {
-                return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
+            if (!id || isNaN(id)) {
+                return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío o no es un número." } });
             }
     
-            if (!isAdmin && userId !== parseInt(id)) {
-                return res.status(403).json({ status: "Fallo", data: { error: "No tienes permiso para actualizar este usuario." } });
+            const updateFields = {};
+            if (nombre !== undefined) updateFields.nombre = nombre; 
+            if (apellido !== undefined) updateFields.apellido = apellido;
+            if (correoElectronico !== undefined) updateFields.correoElectronico = correoElectronico;
+            if (idTipoUsuario !== undefined) updateFields.idTipoUsuario = idTipoUsuario;
+            if (imagen !== undefined) updateFields.imagen = imagen;
+    
+            // Imprimir los campos a actualizar para depuración
+            console.log('Campos a actualizar:', updateFields);
+    
+            if (Object.keys(updateFields).length === 0) {
+                return res.status(400).json({ status: "Fallo", data: { error: "No hay campos para actualizar." } });
             }
     
-            const updatedUser = await this.service.update(id, { nombre, apellido, correoElectronico, idTipoUsuario, imagen });
+            // Verificar que el usuario existe antes de intentar actualizar
+            const existingUser = await this.service.findById(id);
+            if (!existingUser) {
+                return res.status(404).json({ status: "Fallo", data: { error: "Usuario no encontrado." } });
+            }
     
+            const updatedUser = await this.service.update(id, updateFields);
             res.status(200).json({ status: "OK", data: updatedUser });
         } catch (error) {
-            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
+            console.error("Error en el controlador:", error);
+            res.status(500).json({ status: "Fallo", data: { error: error?.message || "Error en el servidor" } });
         }
-    };    
+    };
+    
+    
+    
+    
+      
 
     destroy = async (req, res) => {
         try {
