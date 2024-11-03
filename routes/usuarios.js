@@ -1,7 +1,7 @@
 import express from 'express';
 import UsuariosController from '../controllers/usuariosController.js';
 import AuthController from '../controllers/authController.js';
-import { isAdmin, isClient } from '../middlewares/authMiddleware.js';
+import { isAdmin, isAdminOrSelf } from '../middlewares/authMiddleware.js';
 import protectedRoutes from '../utils/protectedRoutes.js';
 import { registerValidator, updateUsuarioValidator } from '../validators/usuarioValidator.js';
 
@@ -17,7 +17,7 @@ router.post('/login', authController.login);
 protectedRoutes.post('/logout', authController.logout);
 protectedRoutes.get('/usuarios', isAdmin, usuariosController.findAll);
 protectedRoutes.get('/usuarios/:id', isAdmin, usuariosController.findById);
-protectedRoutes.put('/usuarios/:id', updateUsuarioValidator, isClient, usuariosController.update);
+protectedRoutes.put('/usuarios/:id', updateUsuarioValidator, isAdminOrSelf, usuariosController.update);
 protectedRoutes.delete('/usuarios/:id', isAdmin, usuariosController.destroy);
 
 router.use('/secure', protectedRoutes);

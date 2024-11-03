@@ -75,18 +75,23 @@ export default class UsuariosController {
         try {
             const { id } = req.params;
             const { nombre, apellido, correoElectronico, idTipoUsuario, imagen } = req.body;
-
+            const { userId, isAdmin } = req.user;
+    
             if (!id) {
                 return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
             }
-
+    
+            if (!isAdmin && userId !== parseInt(id)) {
+                return res.status(403).json({ status: "Fallo", data: { error: "No tienes permiso para actualizar este usuario." } });
+            }
+    
             const updatedUser = await this.service.update(id, { nombre, apellido, correoElectronico, idTipoUsuario, imagen });
-
+    
             res.status(200).json({ status: "OK", data: updatedUser });
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
-    };
+    };    
 
     destroy = async (req, res) => {
         try {
