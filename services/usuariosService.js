@@ -3,12 +3,12 @@ import connectToDatabase from '../config/db.js';
 export default class UsuariosServices {
     async findAll(filters, limit = 0, offset = 0, order = 'idUsuario', asc = true) {
         const { nombre, apellido } = filters;
-
+    
         const connection = await connectToDatabase();
-        let query = `SELECT * FROM usuarios`;
+        let query = `SELECT * FROM usuarios WHERE idTipoUsuario = ? AND activo = 1`; 
         const whereClauses = [];
-        const params = [];
-
+        const params = [1]; 
+    
         if (nombre) {
             whereClauses.push(`nombre LIKE ?`);
             params.push(`%${nombre}%`);
@@ -17,26 +17,27 @@ export default class UsuariosServices {
             whereClauses.push(`apellido LIKE ?`);
             params.push(`%${apellido}%`);
         }
-
+    
         if (whereClauses.length > 0) {
-            query += ` WHERE ${whereClauses.join(' AND ')}`;
+            query += ` AND ${whereClauses.join(' AND ')}`;
         }
-
+    
         query += ` ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}`;
         if (limit > 0) {
             query += ` LIMIT ? OFFSET ?`;
             params.push(limit, offset);
         }
-
+    
         const [results] = await connection.execute(query, params);
         return results;
-    }
+    }  
 
     async findById(id) {
         const connection = await connectToDatabase();
-        const [rows] = await connection.execute(`SELECT * FROM usuarios WHERE idUsuario = ?`, [id]);
-        return rows[0]; 
-    }
+        const query = `SELECT * FROM usuarios WHERE idUsuario = ? AND idTipoUsuario = ? AND activo = 1`; 
+        const [results] = await connection.execute(query, [id, 1]);
+        return results.length > 0 ? results[0] : null;
+    }   
 
     async findByEmail(correoElectronico) {
         const connection = await connectToDatabase();
@@ -110,7 +111,7 @@ export default class UsuariosServices {
     }
     
     async destroy(id) {
-        const connection = await connectToDatabase();
-        await connection.execute(`DELETE FROM usuarios WHERE idUsuario = ?`, [id]);
+        const connection = await connectToDatabase();    
+        await connection.execute(`UPDATE usuarios SET activo = 0 WHERE idUsuario = ? AND idTipoUsuario = ?`, [id, 1]);
     }
 }

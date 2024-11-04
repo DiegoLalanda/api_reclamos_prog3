@@ -115,18 +115,13 @@ export default class UsuariosController {
     };
     
     destroy = async (req, res) => {
+        const { id } = req.params; 
         try {
-            const { id } = req.params;
-
-            if (!id) {
-                return res.status(404).json({ status: "Fallo", data: { error: "El parámetro id no puede ser vacío." } });
-            }
-
             await this.service.destroy(id);
-
-            res.status(204).send();  
+            res.status(200).json({ status: "Success", message: "Empleado eliminado correctamente." }); 
         } catch (error) {
-            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
+            console.error('Error en destroy:', error);
+            res.status(500).json({ status: "Error", message: 'Error al eliminar el empleado.' });
         }
-    };
+    }    
 }

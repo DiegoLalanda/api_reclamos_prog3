@@ -53,6 +53,7 @@ export default class EmpleadosController {
     update = async (req, res) => {
         const { id } = req.params; 
         const empleadoData = req.body; 
+    
         try {
             const updatedEmpleado = await this.service.update(id, empleadoData);
             res.status(200).json({ status: "Success", data: updatedEmpleado });
@@ -60,16 +61,16 @@ export default class EmpleadosController {
             console.error('Error en update:', error);
             res.status(400).json({ status: "Error", message: error.message || 'Error al actualizar el empleado.' });
         }
-    };
+    };    
 
     destroy = async (req, res) => {
         const { id } = req.params; 
         try {
             await this.service.destroy(id);
-            res.status(204).send(); 
+            res.status(200).json({ status: "Success", message: "Empleado eliminado correctamente." }); 
         } catch (error) {
             console.error('Error en destroy:', error);
             res.status(500).json({ status: "Error", message: 'Error al eliminar el empleado.' });
         }
-    }
+    }    
 }
