@@ -1,29 +1,4 @@
-import jwt from 'jsonwebtoken';
-import passport from 'passport';
 import UsuariosServices from '../services/usuariosService.js';
-
-// Middleware para verificar el token JWT
-const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1] || req.cookies.token; // Intentar obtener el token de las cookies si no está en los encabezados
-
-    if (!token) {
-        return res.status(403).json({ 
-            status: 'Fallo', 
-            data: { error: 'No se ha proporcionado token.' } 
-        });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;  
-        next();
-    } catch (error) {
-        return res.status(401).json({ 
-            status: 'Fallo', 
-            data: { error: 'Token inválido o expirado.' } 
-        });
-    }
-};
 
 const isAdmin = async (req, res, next) => {
     try {
@@ -34,12 +9,12 @@ const isAdmin = async (req, res, next) => {
             });
         }
 
-        const { idUsuario } = req.user; // Desestructuramos el idUsuario
+        const { idUsuario } = req.user;
         const usuariosService = new UsuariosServices();
         const user = await usuariosService.findById(idUsuario);
 
-        if (user?.idTipoUsuario === 1) { // Usamos el operador de encadenamiento opcional
-            return next(); // El usuario es administrador, puede continuar
+        if (user?.idTipoUsuario === 1) { 
+            return next();
         }
 
         return res.status(403).json({
@@ -55,7 +30,6 @@ const isAdmin = async (req, res, next) => {
 };
 
 
-// Middleware para verificar si el usuario es empleado
 const isEmployee = (req, res, next) => {
     if (req.user.idUsuarioTipo  !== '2') {
         return res.status(403).json({ 
@@ -66,7 +40,6 @@ const isEmployee = (req, res, next) => {
     next();
 };
 
-// Middleware para verificar si el usuario es cliente
 const isClient = (req, res, next) => {
     if (req.user.idUsuarioTipo  !== '3') {
         return res.status(403).json({ 
@@ -77,5 +50,38 @@ const isClient = (req, res, next) => {
     next();
 };
 
+const isAdminOrSelf = async (req, res, next) => {
+    try {
+        if (!req.isAuthenticated || !req.isAuthenticated()) {
+            return res.status(401).json({
+                status: 'Fallo',
+                data: { error: 'No autenticado.' }
+            });
+        }
 
-export { verifyToken, isAdmin, isEmployee, isClient };
+        const { id } = req.params; 
+        const { idUsuario } = req.user;
+        const usuariosService = new UsuariosServices();
+        const user = await usuariosService.findById(idUsuario);
+
+        if (user?.idTipoUsuario === 1) {
+            return next(); 
+        }
+
+        if (idUsuario === parseInt(id)) {
+            return next();
+        }
+
+        return res.status(403).json({
+            status: 'Fallo',
+            data: { error: 'Acceso denegado. Solo administradores o el propio usuario pueden acceder a esta ruta.' }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Fallo',
+            data: { error: 'Error del servidor.' }
+        });
+    }
+};
+
+export { isAdmin, isEmployee, isClient, isAdminOrSelf };

@@ -114,4 +114,43 @@ export default class ReclamosController {
             res.status(500).json({ message: 'Error al generar el informe de reclamos en PDF', error: error.message });
         }
     };
+
+    consultarEstadoReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        try {
+            const reclamo = await this.reclamoService.findById(idReclamo);
+            if (!reclamo) {
+                return res.status(404).json({ message: 'Reclamo no encontrado' });
+            }
+            res.status(200).json(reclamo);
+        } catch (error) {
+            console.error('Error al consultar el estado del reclamo:', error);
+            res.status(500).json({ message: 'Error al consultar el estado del reclamo', error: error.message });
+        }
+    };
+
+    cancelarReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        try {
+            const reclamo = await this.reclamoService.findById(idReclamo);
+            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado' });
+    
+            await this.reclamoService.cancelar(idReclamo); 
+            res.status(200).json({ message: 'Reclamo cancelado exitosamente' });
+        } catch (error) {
+            console.error('Error al cancelar el reclamo:', error);
+            res.status(500).json({ message: 'Error al cancelar el reclamo', error: error.message });
+        }
+    };
+
+    atenderReclamos = async (req, res) => {
+        const { idEmpleado } = req.params; 
+        try {
+            const reclamos = await this.reclamoService.findByEmpleadoId(idEmpleado);
+            res.status(200).json(reclamos);
+        } catch (error) {
+            console.error('Error al listar reclamos de la oficina:', error);
+            res.status(500).json({ message: 'Error al listar reclamos de la oficina', error: error.message });
+        }
+    }; 
 }

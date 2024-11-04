@@ -1,4 +1,3 @@
-
 import connectToDatabase from '../config/db.js';
 
 export default class ReclamosData {
@@ -32,6 +31,25 @@ export default class ReclamosData {
         const connection = await connectToDatabase();
         const query = 'UPDATE reclamos SET idReclamoEstado = ? WHERE idReclamo = ?';
         await connection.execute(query, [nuevoEstado, idReclamo]);
+    }
+
+    static async cancelarReclamo(idReclamo, idUsuarioCancelador) {
+        const connection = await connectToDatabase();
+        const query = 'UPDATE reclamos SET idReclamoEstado = (SELECT idReclamosEstado FROM reclamos_estado WHERE descripcion = "Cancelado"), fechaCancelado = NOW(), idUsuarioFinalizador = ? WHERE idReclamo = ?';
+        await connection.execute(query, [idUsuarioCancelador, idReclamo]);
+    }
+
+    static async finalizarReclamo(idReclamo, idUsuarioFinalizador) {
+        const connection = await connectToDatabase();
+        const query = 'UPDATE reclamos SET idReclamoEstado = (SELECT idReclamosEstado FROM reclamos_estado WHERE descripcion = "Finalizado"), fechaFinalizado = NOW(), idUsuarioFinalizador = ? WHERE idReclamo = ?';
+        await connection.execute(query, [idUsuarioFinalizador, idReclamo]);
+    }
+
+    static async findByEstado(idReclamoEstado) {
+        const connection = await connectToDatabase();
+        const query = 'SELECT * FROM reclamos WHERE idReclamoEstado = ?';
+        const [rows] = await connection.execute(query, [idReclamoEstado]);
+        return rows;
     }
 
     static async findUsuarioById(idUsuario) {

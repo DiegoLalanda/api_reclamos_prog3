@@ -33,4 +33,12 @@ export default class ReclamoService {
     async getTipoDescripcion(idReclamoTipo) {
         return await ReclamosData.getTipoDescripcion(idReclamoTipo);
     }
+
+    async cancelarReclamo(idReclamo) {
+        await ReclamosData.cancelarReclamo(idReclamo); 
+    }
+    
+    async findByOficina(idOficina) {
+        return await ReclamosData.findByOficina(idOficina); 
+    }
 }
