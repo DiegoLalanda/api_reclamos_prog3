@@ -123,5 +123,5 @@ export default class UsuariosController {
             console.error('Error en destroy:', error);
             res.status(500).json({ status: "Error", message: 'Error al eliminar el empleado.' });
         }
-    }    
+    };    
 }
