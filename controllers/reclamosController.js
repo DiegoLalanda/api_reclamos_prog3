@@ -33,16 +33,28 @@ export default class ReclamosController {
     };
 
     createReclamo = async (req, res) => {
-        const { asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador } = req.body;
+        const { asunto, descripcion, idReclamoTipo } = req.body;
+        const fechaCreado = new Date();
+        const idUsuarioCreador = req.user?.idUsuario;
+        
+        console.log("Datos recibidos en req.body:", req.body);
+        console.log("Fecha de creación generada automáticamente:", fechaCreado);
+        console.log("ID del usuario creador (desde req.user.idUsuario):", idUsuarioCreador);
+        
+        if (!asunto || !idReclamoTipo || !idUsuarioCreador) {
+            return res.status(400).json({ message: 'Datos faltantes o incorrectos para crear el reclamo' });
+        }
+    
         try {
-            await this.reclamoService.create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador);
+            await this.reclamoService.create(asunto, descripcion, fechaCreado, 1, idReclamoTipo, idUsuarioCreador);
             res.status(201).json({ message: 'Reclamo creado exitosamente' });
         } catch (error) {
             console.error('Error al crear el reclamo:', error);
             res.status(500).json({ message: 'Error al crear el reclamo', error: error.message });
         }
     };
-
+    
+    
     updateReclamo = async (req, res) => {
         const { idReclamo } = req.params;
         const { asunto, descripcion } = req.body;

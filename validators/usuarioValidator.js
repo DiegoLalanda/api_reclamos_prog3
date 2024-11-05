@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import UsuariosServices from '../services/usuariosService.js';
 
 const registerValidator = [
     body('nombre')
@@ -10,7 +11,14 @@ const registerValidator = [
     body('correoElectronico')
         .notEmpty().withMessage('El correo electrónico es obligatorio.')
         .isEmail().withMessage('El formato del correo electrónico es inválido.')
-        .isLength({ max: 256 }).withMessage('El correo electrónico no debe exceder 256 caracteres.'),
+        .isLength({ max: 256 }).withMessage('El correo electrónico no debe exceder 256 caracteres.')
+        .custom(async (email) => {
+            const userService = new UsuariosServices();
+            const user = await userService.findByEmail(email); // Usar el método correcto para buscar usuario por correo
+            if (user) {
+                throw new Error('El correo electrónico ya está registrado.');
+            }
+        }),
     body('contrasenia')
         .notEmpty().withMessage('La contraseña es obligatoria.')
         .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres.'),

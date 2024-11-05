@@ -11,7 +11,7 @@ export default class ReclamosTipoData {
 
     static async findById(id) {
         const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamos_tipo WHERE idReclamoTipo = ?';
+        const query = 'SELECT * FROM reclamos_tipo WHERE idReclamosTipo = ?';
         const [rows] = await connection.execute(query, [id]);
         return rows[0];
     }
