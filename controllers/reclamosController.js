@@ -173,4 +173,37 @@ export default class ReclamosController {
             res.status(500).json({ message: 'Error al listar reclamos de la oficina', error: error.message });
         }
     }; 
+
+    
+    // Método para obtener los reclamos de la oficina de un empleado
+    findReclamosByOficina = async (req, res) => {
+        const idUsuario = req.user?.idUsuario; // Obtener el idUsuario desde el token de autenticación
+        console.log('ID del usuario logueado:', idUsuario); // Log para verificar el idUsuario
+
+        try {
+            // 1. Obtener la oficina del empleado usando el idUsuario
+            const idOficina = await this.reclamoService.getOficinaByEmpleado(idUsuario);
+            console.log('ID de la oficina del empleado:', idOficina); // Log para verificar la oficina asociada al empleado
+            
+            if (!idOficina) {
+                return res.status(404).json({ message: 'El empleado no tiene una oficina asociada' });
+            }
+
+            // 2. Buscar los reclamos correspondientes a esa oficina
+            const reclamos = await this.reclamoService.findByOficina(idOficina);
+            console.log('Reclamos encontrados para la oficina:', reclamos); // Log para verificar los reclamos obtenidos
+            
+            if (!reclamos || reclamos.length === 0) {
+                return res.status(404).json({ message: 'No se encontraron reclamos para esta oficina' });
+            }
+            
+            res.status(200).json(reclamos);
+        } catch (error) {
+            console.error('Error al obtener los reclamos de la oficina:', error);
+            res.status(500).json({ message: 'Error al obtener los reclamos', error: error.message });
+        }
+    };
+
+
+
 }

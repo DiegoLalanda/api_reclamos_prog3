@@ -21,7 +21,8 @@ protectedRoutes.put('/reclamos/:idReclamo/cancelar',isClient, reclamosController
 // Enviar Mail
 protectedRoutes.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
 
-protectedRoutes.get('/reclamos/oficina/:idOficina', isEmployee, reclamosController.atenderReclamos); 
+//Listar los reclamos asignados de su oficina.
+protectedRoutes.get('/oficina/empleado/reclamo', isEmployee, reclamosController.findReclamosByOficina); 
 
 // Ruta para descargar el informe PDF
 protectedRoutes.put('/reclamos/:idReclamo/estado',isClient, updateEstadoReclamoValidator, errorMiddleware, reclamosController.actualizarEstadoReclamo);

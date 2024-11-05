@@ -1,4 +1,3 @@
-// services/reclamoService.js
 import ReclamosData from '../database/reclamosData.js';
 
 export default class ReclamoService {
@@ -36,9 +35,25 @@ export default class ReclamoService {
 
     async cancelarReclamo(idReclamo, idUsuarioCancelador) {
         await ReclamosData.cancelarReclamo(idReclamo, idUsuarioCancelador);
-    }    
-    
-    async findByOficina(idOficina) {
-        return await ReclamosData.findByOficina(idOficina); 
     }
+
+    // Obtener la oficina asociada a un empleado
+    async getOficinaByEmpleado(idEmpleado) {
+        try {
+            return await ReclamosData.getOficinaByEmpleado(idEmpleado);
+        } catch (error) {
+            throw new Error('Error al obtener la oficina del empleado');
+        }
+    }
+
+    // Método para obtener los reclamos por oficina
+    async findByOficina(idOficina) {
+        try {
+            const reclamos = await ReclamosData.findByOficina(idOficina);
+            return reclamos;
+        } catch (error) {
+            throw new Error('Error al obtener los reclamos de la oficina');
+        }
+    }
+    
 }

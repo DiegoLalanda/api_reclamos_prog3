@@ -18,8 +18,9 @@ router.post('/login', authController.login);
 protectedRoutes.post('/logout', authController.logout);
 protectedRoutes.get('/usuarios', isAdmin, usuariosController.findAll);
 protectedRoutes.get('/usuarios/:id', isAdminOrSelf, usuariosController.findById);
-protectedRoutes.put('/usuarios/:id', updateUsuarioValidator, isAdminOrSelf, usuariosController.update);
 protectedRoutes.delete('/usuarios/:id', isAdmin, usuariosController.destroy);
+
+protectedRoutes.put('/usuarios/:id', updateUsuarioValidator, isAdminOrSelf, usuariosController.update);
 
 router.use('/secure', protectedRoutes);
 

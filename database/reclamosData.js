@@ -76,4 +76,34 @@ export default class ReclamosData {
         const [rows] = await connection.execute(query, [idReclamoTipo]);
         return rows.length > 0 ? rows[0].descripcion : null;
     }
+
+    // Obtener la oficina de un empleado desde la tabla usuarios_oficinas
+    static async getOficinaByEmpleado(idEmpleado) {
+        const connection = await connectToDatabase();
+        const query = 'SELECT idOficina FROM usuarios_oficinas WHERE idUsuario = ?';
+        const [result] = await connection.execute(query, [idEmpleado]);
+        
+        if (result.length === 0) {
+            return null; // No se encontró la oficina asociada al empleado
+        }
+
+        return result[0].idOficina; // Devolvemos el idOficina
+    }
+
+    // Método para obtener los reclamos por oficina
+    static async findByOficina(idOficina) {
+        const connection = await connectToDatabase();
+        const tipoQuery = 'SELECT idReclamoTipo FROM oficinas WHERE idOficina = ?';
+        const [tipoResult] = await connection.execute(tipoQuery, [idOficina]);
+
+        if (tipoResult.length === 0) {
+            throw new Error('No se encontró la oficina');
+        }
+
+        const idReclamoTipo = tipoResult[0].idReclamoTipo;
+        const query = 'SELECT * FROM reclamos WHERE idReclamoTipo = ?';
+        const [reclamos] = await connection.execute(query, [idReclamoTipo]);
+
+        return reclamos;
+    }
 }

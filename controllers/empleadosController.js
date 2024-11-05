@@ -1,4 +1,5 @@
 import EmpleadosServices from '../services/empleadosService.js';
+import bcrypt from 'bcrypt';
 
 export default class EmpleadosController {
     constructor() {
