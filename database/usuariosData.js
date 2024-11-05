@@ -5,7 +5,7 @@ export default class UsuariosData {
         const { nombre, apellido } = filters;
 
         const connection = await connectToDatabase();
-        let query = `SELECT * FROM usuarios`;
+        let query = `SELECT * FROM usuarios WHERE idTipoUsuario = ? AND activo = 1`;
         const whereClauses = [];
         const params = [3];
 
@@ -105,6 +105,13 @@ export default class UsuariosData {
 
     static async destroy(id) {
         const connection = await connectToDatabase();
-        await connection.execute(`DELETE FROM usuarios WHERE idUsuario = ?`, [id, 3]);
+        const [result] = await connection.execute(`UPDATE usuarios SET activo = 0 WHERE idUsuario = ? AND idTipoUsuario = ?`, [id, 3]);
+        
+        if (result.affectedRows === 0) {
+            throw new Error("No se encontró ningún usuario para desactivar. Verifica que el ID exista y sea un cliente.");
+        }
+        
+        return { message: "Usuario desactivado correctamente." }; // Mensaje de confirmación
     }
+    
 }

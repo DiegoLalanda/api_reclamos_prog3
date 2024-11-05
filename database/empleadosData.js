@@ -5,7 +5,7 @@ export default class EmpleadosData {
         const { nombre, apellido } = filters;
 
         const connection = await connectToDatabase();
-        let query = `SELECT * FROM usuarios WHERE idTipoUsuario = ?`;
+        let query = `SELECT * FROM usuarios WHERE idTipoUsuario = ? AND activo = 1`;
         const whereClauses = [];
         const params = [2]; 
 
@@ -107,6 +107,13 @@ export default class EmpleadosData {
 
     static async destroy(id) {
         const connection = await connectToDatabase();
-        await connection.execute(`DELETE FROM usuarios WHERE idUsuario = ? AND idTipoUsuario = ?`, [id, 2]);
+        const [result] = await connection.execute(`UPDATE usuarios SET activo = 0 WHERE idUsuario = ? AND idTipoUsuario = ?`, [id, 2]);
+        
+        if (result.affectedRows === 0) {
+            throw new Error("No se encontró ningún usuario para desactivar. Verifica que el ID exista y sea un empleado.");
+        }
+        
+        return { message: "Empleado desactivado correctamente." }; 
     }
+    
 }
