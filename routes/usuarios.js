@@ -13,9 +13,9 @@ const authController = new AuthController();
 // Ruta que no requieren autenticación
 router.post('/registro', registerValidator, errorMiddleware, usuariosController.create); 
 router.post('/login', authController.login);
+router.post('/logout', authController.logout);
 
 // Rutas que requieren autenticación
-protectedRoutes.post('/logout', authController.logout);
 protectedRoutes.get('/usuarios', isAdmin, usuariosController.findAll);
 protectedRoutes.get('/usuarios/:id', isAdminOrSelf, usuariosController.findById);
 protectedRoutes.put('/usuarios/:id', updateUsuarioValidator, isAdminOrSelf, usuariosController.update);

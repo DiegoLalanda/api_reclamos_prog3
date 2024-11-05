@@ -16,13 +16,12 @@ const createReclamoValidator = [
         .isInt().withMessage('El tipo de reclamo debe ser un número entero.')
         .custom(async (idReclamoTipo) => {
             const reclamosTipoService = new ReclamosTipoService();
-            const tipoExiste = await reclamosTipoService.exists(idReclamoTipo); // Asegúrate de que esté bien definido
+            const tipoExiste = await reclamosTipoService.exists(idReclamoTipo);
             if (!tipoExiste) {
                 throw new Error('El tipo de reclamo no es válido.');
             }
         }),
 
-    // Evitar que el cliente envíe el campo 'fechaCreado' o 'idUsuarioCreador' manualmente
     body('fechaCreado').not().exists().withMessage('La fecha de creación se asignará automáticamente.'),
     body('idUsuarioCreador').not().exists().withMessage('El usuario creador se asignará automáticamente.'),
 ];
@@ -36,4 +35,11 @@ const updateReclamoValidator = [
         .isIn(['creado', 'en proceso', 'finalizado', 'cancelado']).withMessage('Estado inválido.'),
 ];
 
-export { createReclamoValidator, updateReclamoValidator };
+// Validación para el cambio de estado del reclamo
+const updateEstadoReclamoValidator = [
+    body('nuevoEstado')
+        .notEmpty().withMessage('El nuevo estado es obligatorio.')
+        .isInt({ min: 1, max: 4 }).withMessage('Estado inválido. Las opciones válidas son: 1 (Creado), 2 (En Proceso), 3 (Cancelado), 4 (Finalizado).'),
+];
+
+export { createReclamoValidator, updateReclamoValidator, updateEstadoReclamoValidator };

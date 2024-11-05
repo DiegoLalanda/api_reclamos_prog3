@@ -7,8 +7,7 @@ const options = {
     jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(), // Para obtener el JWT del encabezado de autorización
         (req) => {
-            // También puedes usar la cookie
-            return req.cookies.token; // Cambiar según tu implementación
+            return req.cookies.token;
         }
     ]),
     secretOrKey: SECRET_KEY,
