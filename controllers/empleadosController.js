@@ -37,18 +37,32 @@ export default class EmpleadosController {
     };
 
     create = async (req, res) => {
-        const empleado = {
-            ...req.body,
-            idTipoUsuario: 2
-        }; 
         try {
-            const newEmpleado = await this.service.create(empleado);
-            res.status(201).json({ status: "Created", data: newEmpleado });
+            const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+    
+            if (!nombre || !apellido || !correoElectronico || !contrasenia) {
+                return res.status(400).json({
+                    status: "Fallo",
+                    data: { error: "Uno de los siguientes datos falta o es vacío: 'nombre', 'apellido', 'correoElectronico', 'contrasenia'." }
+                });
+            }
+    
+            const hashedPassword = await bcrypt.hash(contrasenia, 10); 
+    
+            const newUser = await this.service.create({
+                nombre,
+                apellido,
+                correoElectronico,
+                contrasenia: hashedPassword,
+                idTipoUsuario: 2,
+                imagen: imagen || null
+            });
+    
+            res.status(201).json({ status: "OK", data: newUser });
         } catch (error) {
-            console.error('Error en create:', error);
-            res.status(400).json({ status: "Error", message: error.message || 'Error al crear el empleado.' });
+            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
-    };
+    }; 
 
     update = async (req, res) => {
         const { id } = req.params; 

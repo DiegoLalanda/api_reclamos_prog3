@@ -55,28 +55,31 @@ export default class UsuariosController {
 
     create = async (req, res) => {
         try {
-            const { nombre, apellido, correoElectronico, contrasenia, imagen, idTipoUsuario } = req.body;
+            const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
     
-            // Encriptar la contraseña
-            const hashedPassword = await bcrypt.hash(contrasenia, 10);
+            if (!nombre || !apellido || !correoElectronico || !contrasenia) {
+                return res.status(400).json({
+                    status: "Fallo",
+                    data: { error: "Uno de los siguientes datos falta o es vacío: 'nombre', 'apellido', 'correoElectronico', 'contrasenia'." }
+                });
+            }
     
-            // Crear el usuario con el idTipoUsuario especificado
+            const hashedPassword = await bcrypt.hash(contrasenia, 10); 
+    
             const newUser = await this.service.create({
                 nombre,
                 apellido,
                 correoElectronico,
                 contrasenia: hashedPassword,
-                idTipoUsuario,
+                idTipoUsuario: 3,
                 imagen: imagen || null
             });
     
             res.status(201).json({ status: "OK", data: newUser });
         } catch (error) {
-            console.error('Error al crear el usuario:', error);
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
-    };
-    
+    };  
 
     update = async (req, res) => {
         try {
