@@ -35,10 +35,14 @@ export default class ReclamosData {
 
     static async cancelarReclamo(idReclamo, idUsuarioCancelador) {
         const connection = await connectToDatabase();
-        const query = 'UPDATE reclamos SET idReclamoEstado = (SELECT idReclamosEstado FROM reclamos_estado WHERE descripcion = "Cancelado"), fechaCancelado = NOW(), idUsuarioFinalizador = ? WHERE idReclamo = ?';
+        const query = `
+            UPDATE reclamos 
+            SET idReclamoEstado = 3, fechaCancelado = NOW(), idUsuarioFinalizador = ? 
+            WHERE idReclamo = ?
+        `;
         await connection.execute(query, [idUsuarioCancelador, idReclamo]);
     }
-
+    
     static async finalizarReclamo(idReclamo, idUsuarioFinalizador) {
         const connection = await connectToDatabase();
         const query = 'UPDATE reclamos SET idReclamoEstado = (SELECT idReclamosEstado FROM reclamos_estado WHERE descripcion = "Finalizado"), fechaFinalizado = NOW(), idUsuarioFinalizador = ? WHERE idReclamo = ?';

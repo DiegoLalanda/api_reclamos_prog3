@@ -15,6 +15,8 @@ protectedRoutes.post('/reclamos', isClient, createReclamoValidator, errorMiddlew
 protectedRoutes.put('/reclamos/:idReclamo', reclamosController.updateReclamo); 
 protectedRoutes.get('/reclamos/:idReclamo/estado', isClient, reclamosController.consultarEstadoReclamo); 
 
+// Cancelar Reclamo
+protectedRoutes.put('/reclamos/:idReclamo/cancelar',isClient, reclamosController.cancelarReclamo);
 
 // Enviar Mail
 protectedRoutes.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
