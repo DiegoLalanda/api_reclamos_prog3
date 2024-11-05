@@ -1,35 +1,31 @@
-import connectToDatabase from '../config/db.js';
+// services/usuariosOficinasService.js
+import UsuariosOficinasData from '../database/usuariosOficinasData.js';
 
 export default class UsuariosOficinasService {
+    // Obtener todas las relaciones de usuarios y oficinas
     async findAll() {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM usuarios_oficinas';
-        const [rows] = await connection.execute(query);
-        return rows;
+        return await UsuariosOficinasData.findAll();
     }
 
+    // Obtener una relación usuario-oficina por ID
     async findById(id) {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM usuarios_oficinas WHERE idUsuarioOficina = ?';
-        const [rows] = await connection.execute(query, [id]);
-        return rows[0];
+        return await UsuariosOficinasData.findById(id);
     }
 
+    // Crear una nueva relación usuario-oficina
     async create(usuariosOficinas) {
-        const connection = await connectToDatabase();
-        const query = 'INSERT INTO usuarios_oficinas (idUsuario, idOficina, activo) VALUES (?, ?, ?)';
-        await connection.execute(query, [usuariosOficinas.idUsuario, usuariosOficinas.idOficina, usuariosOficinas.activo]);
+        const { idUsuario, idOficina, activo } = usuariosOficinas;
+        await UsuariosOficinasData.create(idUsuario, idOficina, activo);
     }
 
+    // Actualizar una relación usuario-oficina
     async update(id, usuariosOficinas) {
-        const connection = await connectToDatabase();
-        const query = 'UPDATE usuarios_oficinas SET idUsuario = ?, idOficina = ?, activo = ? WHERE idUsuarioOficina = ?';
-        await connection.execute(query, [usuariosOficinas.idUsuario, usuariosOficinas.idOficina, usuariosOficinas.activo, id]);
+        const { idUsuario, idOficina, activo } = usuariosOficinas;
+        await UsuariosOficinasData.update(id, idUsuario, idOficina, activo);
     }
 
+    // Eliminar una relación usuario-oficina
     async delete(id) {
-        const connection = await connectToDatabase();
-        const query = 'DELETE FROM usuarios_oficinas WHERE idUsuarioOficina = ?';
-        await connection.execute(query, [id]);
+        await UsuariosOficinasData.delete(id);
     }
 }
