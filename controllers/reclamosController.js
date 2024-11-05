@@ -1,5 +1,6 @@
 import ReclamoService from '../services/reclamosService.js';
 import EmailService from '../services/emailService.js';
+import PDFUtils from '../utils/PDFutils.js';
 
 export default class ReclamosController {
     constructor() {
@@ -32,16 +33,28 @@ export default class ReclamosController {
     };
 
     createReclamo = async (req, res) => {
-        const { asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador } = req.body;
+        const { asunto, descripcion, idReclamoTipo } = req.body;
+        const fechaCreado = new Date();
+        const idUsuarioCreador = req.user?.idUsuario;
+        
+        console.log("Datos recibidos en req.body:", req.body);
+        console.log("Fecha de creación generada automáticamente:", fechaCreado);
+        console.log("ID del usuario creador (desde req.user.idUsuario):", idUsuarioCreador);
+        
+        if (!asunto || !idReclamoTipo || !idUsuarioCreador) {
+            return res.status(400).json({ message: 'Datos faltantes o incorrectos para crear el reclamo' });
+        }
+    
         try {
-            await this.reclamoService.create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador);
+            await this.reclamoService.create(asunto, descripcion, fechaCreado, 1, idReclamoTipo, idUsuarioCreador);
             res.status(201).json({ message: 'Reclamo creado exitosamente' });
         } catch (error) {
             console.error('Error al crear el reclamo:', error);
             res.status(500).json({ message: 'Error al crear el reclamo', error: error.message });
         }
     };
-
+    
+    
     updateReclamo = async (req, res) => {
         const { idReclamo } = req.params;
         const { asunto, descripcion } = req.body;
@@ -51,17 +64,6 @@ export default class ReclamosController {
         } catch (error) {
             console.error('Error al actualizar el reclamo:', error);
             res.status(500).json({ message: 'Error al actualizar el reclamo', error: error.message });
-        }
-    };
-
-    deleteReclamo = async (req, res) => {
-        const { idReclamo } = req.params;
-        try {
-            await this.reclamoService.destroy(idReclamo);
-            res.status(200).json({ message: 'Reclamo eliminado exitosamente' });
-        } catch (error) {
-            console.error('Error al eliminar el reclamo:', error);
-            res.status(500).json({ message: 'Error al eliminar el reclamo', error: error.message });
         }
     };
 
@@ -102,4 +104,65 @@ export default class ReclamosController {
             res.status(500).json({ message: 'Error al actualizar el estado del reclamo', error: error.message });
         }
     };
+    descargarInformeReclamos = async (req, res) => {
+        try {
+            const reclamos = await this.reclamoService.findAll();
+
+            // Agregar detalles adicionales si son necesarios
+            const reclamosConDetalles = await Promise.all(
+                reclamos.map(async (reclamo) => {
+                    const estadoDescripcion = await this.reclamoService.getEstadoDescripcion(reclamo.idReclamoEstado);
+                    return { ...reclamo, estadoDescripcion };
+                })
+            );
+
+            // Generar el PDF y enviarlo como respuesta
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="informe_reclamos.pdf"');
+            await PDFUtils.generarInformeReclamos(reclamosConDetalles, res);
+
+        } catch (error) {
+            console.error('Error al generar el informe de reclamos en PDF:', error);
+            res.status(500).json({ message: 'Error al generar el informe de reclamos en PDF', error: error.message });
+        }
+    };
+
+    consultarEstadoReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        try {
+            const reclamo = await this.reclamoService.findById(idReclamo);
+            if (!reclamo) {
+                return res.status(404).json({ message: 'Reclamo no encontrado' });
+            }
+            res.status(200).json(reclamo);
+        } catch (error) {
+            console.error('Error al consultar el estado del reclamo:', error);
+            res.status(500).json({ message: 'Error al consultar el estado del reclamo', error: error.message });
+        }
+    };
+
+    cancelarReclamo = async (req, res) => {
+        const { idReclamo } = req.params;
+        try {
+            const reclamo = await this.reclamoService.findById(idReclamo);
+            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado' });
+    
+            await this.reclamoService.cancelar(idReclamo); 
+            res.status(200).json({ message: 'Reclamo cancelado exitosamente' });
+        } catch (error) {
+            console.error('Error al cancelar el reclamo:', error);
+            res.status(500).json({ message: 'Error al cancelar el reclamo', error: error.message });
+        }
+    };
+
+    atenderReclamos = async (req, res) => {
+        const { idEmpleado } = req.params; 
+        try {
+            const reclamos = await this.reclamoService.findByEmpleadoId(idEmpleado);
+            res.status(200).json(reclamos);
+        } catch (error) {
+            console.error('Error al listar reclamos de la oficina:', error);
+            res.status(500).json({ message: 'Error al listar reclamos de la oficina', error: error.message });
+        }
+    }; 
 }

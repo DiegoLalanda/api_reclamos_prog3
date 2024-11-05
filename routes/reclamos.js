@@ -1,18 +1,29 @@
 import express from 'express';
 import ReclamosController from '../controllers/reclamosController.js';
-import { verifyToken, isClient } from '../middlewares/authMiddleware.js';
+import { isAdmin, isClient, isEmployee } from '../middlewares/authMiddleware.js';
+import protectedRoutes from '../utils/protectedRoutes.js';
+import { createReclamoValidator } from '../validators/reclamoValidator.js';
+import errorMiddleware from '../middlewares/errorMiddleware.js';
 
 const router = express.Router();
 const reclamosController = new ReclamosController();
 
-router.get('/reclamos', reclamosController.findAllReclamos);
-router.get('/reclamos/:idReclamo', reclamosController.findByIdReclamo);
-router.post('/reclamos', reclamosController.createReclamo);
-router.put('/reclamos/:idReclamo', reclamosController.updateReclamo);
-router.delete('/reclamos/:idReclamo', reclamosController.deleteReclamo);
+// Rutas de reclamos
+protectedRoutes.get('/reclamos', isAdmin, reclamosController.findAllReclamos); 
+protectedRoutes.get('/reclamos/:idReclamo', isAdmin, reclamosController.findByIdReclamo); 
+protectedRoutes.post('/reclamos', isClient, createReclamoValidator, errorMiddleware,reclamosController.createReclamo);
+protectedRoutes.put('/reclamos/:idReclamo', reclamosController.updateReclamo); 
+protectedRoutes.get('/reclamos/:idReclamo/estado', isClient, reclamosController.consultarEstadoReclamo); 
+
+
+// Enviar Mail
 router.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
 
-// Ejemplo con auth middleware
-// router.post('/reclamos', verifyToken, isClient, reclamosController.create);  
+protectedRoutes.get('/reclamos/oficina/:idOficina', isEmployee, reclamosController.atenderReclamos); 
+
+// Ruta para descargar el informe PDF
+protectedRoutes.get('/informe-pdf', isAdmin, reclamosController.descargarInformeReclamos); 
+
+router.use('/secure', protectedRoutes);
 
 export default router;

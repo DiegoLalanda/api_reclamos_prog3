@@ -1,13 +1,13 @@
-import connectToDatabase from '../config/db.js'; 
+import connectToDatabase from '../config/db.js';
 
-export default class UsuariosServices {
+export default class EmpleadosServices {
     async findAll(filters, limit = 0, offset = 0, order = 'idUsuario', asc = true) {
         const { nombre, apellido } = filters;
 
         const connection = await connectToDatabase();
-        let query = `SELECT * FROM usuarios`;
+        let query = `SELECT * FROM usuarios WHERE idTipoUsuario = ?`;
         const whereClauses = [];
-        const params = [];
+        const params = [2]; 
 
         if (nombre) {
             whereClauses.push(`nombre LIKE ?`);
@@ -19,7 +19,7 @@ export default class UsuariosServices {
         }
 
         if (whereClauses.length > 0) {
-            query += ` WHERE ${whereClauses.join(' AND ')}`;
+            query += ` AND ${whereClauses.join(' AND ')}`;
         }
 
         query += ` ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}`;
@@ -34,46 +34,47 @@ export default class UsuariosServices {
 
     async findById(id) {
         const connection = await connectToDatabase();
-        const [rows] = await connection.execute(`SELECT * FROM usuarios WHERE idUsuario = ?`, [id]);
-        return rows[0]; 
+        const query = `SELECT * FROM usuarios WHERE idUsuario = ? AND idTipoUsuario = ?`;
+        const [results] = await connection.execute(query, [id, 2]);
+        return results.length > 0 ? results[0] : null;
     }
 
     async findByEmail(correoElectronico) {
         const connection = await connectToDatabase();
         const [rows] = await connection.execute(
-            `SELECT * FROM usuarios WHERE correoElectronico = ?`,
-            [correoElectronico]
+            `SELECT * FROM usuarios WHERE correoElectronico = ? AND idTipoUsuario = ?`,
+            [correoElectronico, 2] 
         );
         return rows[0];
     }
 
-    async create(user) {
-        const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = user;
+    async create(empleado) {
+        const { nombre, apellido, correoElectronico, contrasenia, imagen } = empleado;
         const connection = await connectToDatabase();
         const [result] = await connection.execute(
             `INSERT INTO usuarios (nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen)
             VALUES (?, ?, ?, ?, ?, ?)`,
-            [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen]
+            [nombre, apellido, correoElectronico, contrasenia, 2, imagen] 
         );
-        return { idUsuario: result.insertId, ...user }; 
+        return { idUsuario: result.insertId, ...empleado };
     }
 
-    async update(id, user) {
-        const { nombre, apellido, correoElectronico, idTipoUsuario, imagen } = user;
-    
+    async update(id, empleado) {
+        const { nombre, apellido, correoElectronico, imagen } = empleado;
+
         const connection = await connectToDatabase();
-    
+
         if (!id || isNaN(id)) {
             throw new Error("ID inválido.");
         }
-    
-        if (!nombre && !apellido && !correoElectronico && !idTipoUsuario && !imagen) {
+
+        if (!nombre && !apellido && !correoElectronico && !imagen) {
             throw new Error("No se proporcionaron campos para actualizar.");
         }
-    
+
         const fieldsToUpdate = [];
         const params = [];
-    
+
         if (nombre !== undefined) {
             fieldsToUpdate.push('nombre = ?');
             params.push(nombre);
@@ -86,31 +87,26 @@ export default class UsuariosServices {
             fieldsToUpdate.push('correoElectronico = ?');
             params.push(correoElectronico);
         }
-        if (idTipoUsuario !== undefined) {
-            fieldsToUpdate.push('idTipoUsuario = ?');
-            params.push(idTipoUsuario);
-        }
         if (imagen !== undefined) {
             fieldsToUpdate.push('imagen = ?');
             params.push(imagen);
         }
-    
+
         params.push(id);
-    
-        const query = `UPDATE usuarios SET ${fieldsToUpdate.join(', ')} WHERE idUsuario = ?`;
-    
-    
-        const [result] = await connection.execute(query, params);
-    
+
+        const query = `UPDATE usuarios SET ${fieldsToUpdate.join(', ')} WHERE idUsuario = ? AND idTipoUsuario = ?`;
+        
+        const [result] = await connection.execute(query, [...params, 2]); 
+
         if (result.affectedRows === 0) {
-            throw new Error("No se actualizó ningún usuario. Verifica que el ID exista.");
+            throw new Error("No se actualizó ningún empleado. Verifica que el ID exista y sea un empleado.");
         }
-    
-        return this.findById(id); 
+
+        return this.findById(id);
     }
-    
+
     async destroy(id) {
         const connection = await connectToDatabase();
-        await connection.execute(`DELETE FROM usuarios WHERE idUsuario = ?`, [id]);
+        await connection.execute(`DELETE FROM usuarios WHERE idUsuario = ? AND idTipoUsuario = ?`, [id, 2]);
     }
 }

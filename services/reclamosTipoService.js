@@ -1,35 +1,26 @@
-import connectToDatabase from '../config/db.js';
+// services/reclamosTipoService.js
+import ReclamosTipoData from '../database/reclamosTipoData.js';
 
 export default class ReclamosTipoService {
     async findAll() {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamosTipo';
-        const [rows] = await connection.execute(query);
-        return rows;
+        return await ReclamosTipoData.findAll();
     }
 
     async findById(id) {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamosTipo WHERE idReclamoTipo = ?';
-        const [rows] = await connection.execute(query, [id]);
-        return rows[0];
+        return await ReclamosTipoData.findById(id);
     }
 
     async create(reclamoTipo) {
-        const connection = await connectToDatabase();
-        const query = 'INSERT INTO reclamosTipo (descripcion, activo) VALUES (?, ?)';
-        await connection.execute(query, [reclamoTipo.descripcion, reclamoTipo.activo]);
+        await ReclamosTipoData.create(reclamoTipo);
     }
 
     async update(id, reclamoTipo) {
-        const connection = await connectToDatabase();
-        const query = 'UPDATE reclamosTipo SET descripcion = ?, activo = ? WHERE idReclamoTipo = ?';
-        await connection.execute(query, [reclamoTipo.descripcion, reclamoTipo.activo, id]);
+        await ReclamosTipoData.update(id, reclamoTipo);
     }
 
-    async delete(id) {
-        const connection = await connectToDatabase();
-        const query = 'DELETE FROM reclamosTipo WHERE idReclamoTipo = ?';
-        await connection.execute(query, [id]);
+    // Método para verificar la existencia de un tipo de reclamo
+    async exists(id) {
+        const tipo = await this.findById(id);
+        return !!tipo; // Retorna true si existe, false si no
     }
 }

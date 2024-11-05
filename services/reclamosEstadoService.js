@@ -1,35 +1,24 @@
-import connectToDatabase from '../config/db.js';
+// services/reclamosEstadoService.js
+import ReclamosEstadoData from '../database/reclamosEstadoData.js';
 
 export default class ReclamosEstadoService {
     async findAll() {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamosEstado';
-        const [rows] = await connection.execute(query);
-        return rows;
+        return await ReclamosEstadoData.findAll();
     }
 
     async findById(id) {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamosEstado WHERE idReclamoEstado = ?';
-        const [rows] = await connection.execute(query, [id]);
-        return rows[0];
+        return await ReclamosEstadoData.findById(id);
     }
 
     async create(reclamoEstado) {
-        const connection = await connectToDatabase();
-        const query = 'INSERT INTO reclamosEstado (descripcion) VALUES (?)';
-        await connection.execute(query, [reclamoEstado.descripcion]);
+        await ReclamosEstadoData.create(reclamoEstado);
     }
 
     async update(id, reclamoEstado) {
-        const connection = await connectToDatabase();
-        const query = 'UPDATE reclamosEstado SET descripcion = ? WHERE idReclamoEstado = ?';
-        await connection.execute(query, [reclamoEstado.descripcion, id]);
+        await ReclamosEstadoData.update(id, reclamoEstado);
     }
 
     async delete(id) {
-        const connection = await connectToDatabase();
-        const query = 'DELETE FROM reclamosEstado WHERE idReclamoEstado = ?';
-        await connection.execute(query, [id]);
+        await ReclamosEstadoData.delete(id);
     }
 }
