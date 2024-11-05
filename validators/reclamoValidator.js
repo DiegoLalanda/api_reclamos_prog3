@@ -36,4 +36,11 @@ const updateReclamoValidator = [
         .isIn(['creado', 'en proceso', 'finalizado', 'cancelado']).withMessage('Estado inválido.'),
 ];
 
-export { createReclamoValidator, updateReclamoValidator };
+// Validación para el cambio de estado del reclamo
+const updateEstadoReclamoValidator = [
+    body('nuevoEstado')
+        .notEmpty().withMessage('El nuevo estado es obligatorio.')
+        .isInt({ min: 1, max: 4 }).withMessage('Estado inválido. Las opciones válidas son: 1 (Creado), 2 (En Proceso), 3 (Cancelado), 4 (Finalizado).'),
+];
+
+export { createReclamoValidator, updateReclamoValidator,updateEstadoReclamoValidator};

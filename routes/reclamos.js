@@ -2,7 +2,7 @@ import express from 'express';
 import ReclamosController from '../controllers/reclamosController.js';
 import { isAdmin, isClient, isEmployee } from '../middlewares/authMiddleware.js';
 import protectedRoutes from '../utils/protectedRoutes.js';
-import { createReclamoValidator } from '../validators/reclamoValidator.js';
+import { createReclamoValidator, updateEstadoReclamoValidator } from '../validators/reclamoValidator.js';
 import errorMiddleware from '../middlewares/errorMiddleware.js';
 
 const router = express.Router();
@@ -17,12 +17,12 @@ protectedRoutes.get('/reclamos/:idReclamo/estado', isClient, reclamosController.
 
 
 // Enviar Mail
-router.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
+protectedRoutes.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
 
 protectedRoutes.get('/reclamos/oficina/:idOficina', isEmployee, reclamosController.atenderReclamos); 
 
 // Ruta para descargar el informe PDF
-protectedRoutes.get('/informe-pdf', isAdmin, reclamosController.descargarInformeReclamos); 
+protectedRoutes.put('/reclamos/:idReclamo/estado',isClient, updateEstadoReclamoValidator, errorMiddleware, reclamosController.actualizarEstadoReclamo);
 
 router.use('/secure', protectedRoutes);
 
