@@ -34,15 +34,13 @@ export default class ReclamosController {
 
     createReclamo = async (req, res) => {
         const { asunto, descripcion, idReclamoTipo } = req.body;
-        const fechaCreado = new Date(); // Asignación automática de la fecha y hora actual
-        const idUsuarioCreador = req.user ? req.user.id : null; // ID del usuario autenticado, extraído del token
-    
-        // Logs para verificar los datos recibidos
-        console.log("Datos recibidos en req.body:", req.body); // Verifica el contenido de req.body
-        console.log("Fecha de creación generada automáticamente:", fechaCreado); // Verifica que la fecha esté generada
-        console.log("ID del usuario creador (desde req.user.id):", idUsuarioCreador); // Verifica que req.user.id esté definido
-    
-        // Verificación de datos antes de llamar al servicio
+        const fechaCreado = new Date();
+        const idUsuarioCreador = req.user?.idUsuario;
+        
+        console.log("Datos recibidos en req.body:", req.body);
+        console.log("Fecha de creación generada automáticamente:", fechaCreado);
+        console.log("ID del usuario creador (desde req.user.idUsuario):", idUsuarioCreador);
+        
         if (!asunto || !idReclamoTipo || !idUsuarioCreador) {
             return res.status(400).json({ message: 'Datos faltantes o incorrectos para crear el reclamo' });
         }
