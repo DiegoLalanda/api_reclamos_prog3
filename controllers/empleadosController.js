@@ -1,5 +1,6 @@
 import EmpleadosServices from '../services/empleadosService.js';
 import bcrypt from 'bcrypt';
+import UsuariosOficinasData from '../database/usuariosOficinasData.js';
 
 export default class EmpleadosController {
     constructor() {
@@ -39,7 +40,7 @@ export default class EmpleadosController {
 
     create = async (req, res) => {
         try {
-            const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+            const { nombre, apellido, correoElectronico, contrasenia, imagen, idOficina } = req.body;
     
             if (!nombre || !apellido || !correoElectronico || !contrasenia) {
                 return res.status(400).json({
@@ -59,11 +60,20 @@ export default class EmpleadosController {
                 imagen: imagen || null
             });
     
+            if (idOficina) {
+                const oficinaAssignment = {
+                    idUsuario: newUser.idUsuario,
+                    idOficina,
+                    activo: 1
+                };
+                await UsuariosOficinasData.create(oficinaAssignment.idUsuario, oficinaAssignment.idOficina, oficinaAssignment.activo);
+            }
+    
             res.status(201).json({ status: "OK", data: newUser });
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
-    }; 
+    };
 
     update = async (req, res) => {
         const { id } = req.params; 

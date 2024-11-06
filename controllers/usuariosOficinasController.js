@@ -38,11 +38,21 @@ export const createUsuariosOficina = async (req, res) => {
 export const updateUsuariosOficina = async (req, res) => {
     try {
         const { id } = req.params;
-        const { idUsuario, idOficina, activo } = req.body;
+        const { idOficina, activo } = req.body;
+
+        const relacion = await usuariosOficinasService.findById(id);
+        if (!relacion) {
+            return res.status(404).json({ message: 'Relación Usuario-Oficina no encontrada.' });
+        }
+
+        const idUsuario = relacion.idUsuario;
+
         await usuariosOficinasService.update(id, { idUsuario, idOficina, activo });
+
         res.status(200).json({ message: `Relación Usuario-Oficina con id ${id} actualizada correctamente` });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error en updateUsuariosOficina:', error);
+        res.status(500).json({ message: error.message || 'Error al actualizar la relación Usuario-Oficina.' });
     }
 };
 
