@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import EmpleadosServices from '../services/empleadosService.js';
+import bcrypt from 'bcrypt';
 import UsuariosOficinasData from '../database/usuariosOficinasData.js';
 
 export default class EmpleadosController {
