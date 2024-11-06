@@ -19,13 +19,13 @@ protectedRoutes.get('/reclamos/:idReclamo/estado', isClient, reclamosController.
 protectedRoutes.put('/reclamos/:idReclamo/cancelar',isClient, reclamosController.cancelarReclamo);
 
 // Enviar Mail
-protectedRoutes.put('/reclamos/:idReclamo/estado', reclamosController.actualizarEstadoReclamo);
+protectedRoutes.put('/reclamos/:idReclamo/estado',isEmployee, updateEstadoReclamoValidator, errorMiddleware, reclamosController.actualizarEstadoReclamo);
 
 //Listar los reclamos asignados de su oficina.
 protectedRoutes.get('/oficina/empleado/reclamo', isEmployee, reclamosController.findReclamosByOficina); 
 
 // Ruta para descargar el informe PDF
-protectedRoutes.put('/reclamos/:idReclamo/estado',isEmployee, updateEstadoReclamoValidator, errorMiddleware, reclamosController.actualizarEstadoReclamo);
+protectedRoutes.get('/informe-pdf', isAdmin, reclamosController.descargarInformeReclamos); 
 
 router.use('/secure', protectedRoutes);
 

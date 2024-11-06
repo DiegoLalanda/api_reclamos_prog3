@@ -9,9 +9,14 @@ Esta API está diseñada para gestionar reclamos en una concesionaria, permitien
 - **Node.js**
 - **Express.js**
 - **MySQL2**
-- **Handlebars**
-- **Dotenv**
-- **Nodemailer**
+- **Passport.js** (autenticación)
+- **JWT Token** (tokens de acceso)
+- **Bcrypt** (encriptación de contraseñas)
+- **express-validator** (validaciones de datos)
+- **PDFKit** (generación de informes en PDF)
+- **Nodemailer** (envío de correos electrónicos)
+- **Handlebars** (plantillas de correo electrónico)
+- **Dotenv** (gestión de variables de entorno)
 
 ## Estructura de la API
 
@@ -27,145 +32,104 @@ La API está organizada en diferentes rutas para manejar CRUD de las siguientes 
 Cada uno de estos componentes cuenta con rutas específicas que permiten las operaciones CRUD y otras funcionalidades adicionales.
 
 ---
+## Autenticación y Seguridad
 
-## Endpoints de la API
+Se utiliza **Passport.js** para manejar la autenticación, y los tokens **JWT** para autorizar a los usuarios a realizar acciones específicas según su perfil. Las contraseñas de los usuarios son encriptadas usando **Bcrypt**. Además, se gestionan cookies para mantener la sesión activa.
 
-### Usuarios
+## Validaciones
 
-- **GET** `/api/v1/usuarios`  
-  Retorna todos los usuarios registrados en la base de datos.
-
-- **GET** `/api/v1/usuarios/:id`  
-  Retorna un usuario específico según su ID.
-
-- **POST** `/api/v1/usuarios`  
-  Crea un nuevo usuario.  
-  **Campos requeridos**: `nombre`, `correoElectronico`, `contraseña`.
-
-- **POST** `/api/v1/login`  
-  Login de usuario.  
-  **Campos requeridos**: `correoElectronico`, `contraseña`.  
-
-- **PUT** `/api/v1/usuarios/:id`  
-  Actualiza la información de un usuario existente.  
-  **Campos opcionales**: `nombre`, `correoElectronico`, `contraseña`.
-
-- **DELETE** `/api/v1/usuarios/:id`  
-  Elimina un usuario existente de la base de datos.
-
-### Tipos de Usuarios
-
-- **GET** `/api/v1/rol`  
-  Retorna todos los tipos de usuarios.
-
-- **POST** `/api/v1/rol`  
-  Crea un nuevo tipo de usuario.  
-  **Campos requeridos**: `descripcion`, `activo`.
-
-### Reclamos
-
-- **GET** `/api/v1/reclamos`  
-  Retorna todos los reclamos registrados.
-
-- **GET** `/api/v1/reclamos/:idReclamo`  
-  Retorna un reclamo específico según su ID.
-
-- **POST** `/api/v1/reclamos`  
-  Crea un nuevo reclamo.  
-  **Campos requeridos**: `asunto`, `descripcion`, `idUsuarioCreador`, `idReclamoTipo`, `idReclamoEstado`.
-
-- **PUT** `/api/v1/reclamos/:idReclamo`  
-  Actualiza un reclamo existente según su ID.  
-  **Campos opcionales**: `asunto`, `descripcion`, `idUsuarioFinalizador`.
-
-- **PUT** `/api/v1/reclamos/:idReclamo/estado`  
-  Actualiza el estado de un reclamo y envía un correo electrónico al usuario creador.  
-  **Campos requeridos**: `nuevoEstado`.
-
-- **DELETE** `/api/v1/reclamos/:idReclamo`  
-  Elimina un reclamo de la base de datos.
-
-### Tipos de Reclamos
-
-- **GET** `/api/v1/reclamosTipo`  
-  Retorna todos los tipos de reclamos.
-
-- **POST** `/api/v1/reclamosTipo`  
-  Crea un nuevo tipo de reclamo.  
-  **Campos requeridos**: `descripcion`, `activo`.
-
-### Estados de Reclamos
-
-- **GET** `/api/v1/reclamosEstado`  
-  Retorna todos los estados de reclamos.
-
-- **POST** `/api/v1/reclamosEstado`  
-  Crea un nuevo estado de reclamo.  
-  **Campos requeridos**: `descripcion`.
-
-### Oficinas
-
-- **GET** `/api/v1/oficinas`  
-  Retorna todas las oficinas.
-
-- **POST** `/api/v1/oficinas`  
-  Crea una nueva oficina.  
-  **Campos requeridos**: `nombre`, `ubicacion`.
-
----
+La API implementa validaciones con **express-validator** para garantizar que los datos recibidos a través de las solicitudes sean correctos y seguros.
 
 ## Configuración del Correo Electrónico
 
 La API está configurada para enviar correos electrónicos a los usuarios cuando se actualiza el estado de un reclamo. Para ello, se utiliza `Nodemailer` junto con plantillas `Handlebars`.
 
+---
+
 ## Detalles de la Base de Datos
 
 La base de datos está diseñada para incluir las siguientes tablas, que están relacionadas entre sí:
 
-1. **usuarios**: Esta tabla almacena la información de los usuarios, incluyendo su nombre, correo electrónico y contraseña. Cada usuario está asociado a un tipo de usuario.
+## Tablas
 
-2. **usuariosTipo**: Define los diferentes tipos de usuarios (cliente, empleado, administrador). Cada usuario en la tabla `usuarios` se asocia a un tipo de usuario mediante una clave foránea.
+### 1. **usuarios**
+La tabla `usuarios` almacena la información de los usuarios, incluyendo su nombre, apellido, correo electrónico y contraseña. Cada usuario está asociado a un tipo de usuario.
 
-3. **reclamos**: Almacena los reclamos registrados por los usuarios. Cada reclamo está asociado a un usuario creador y tiene un tipo y estado específicos.
+- **Campos**:
+  - `idUsuario` (int): ID único del usuario.
+  - `nombre` (varchar): Nombre del usuario.
+  - `apellido` (varchar): Apellido del usuario.
+  - `correoElectronico` (varchar): Correo electrónico del usuario.
+  - `contrasenia` (varchar): Contraseña del usuario (cifrada).
+  - `idTipoUsuario` (int): Relacionado con el tipo de usuario (referencia a `usuariosTipo`).
+  - `imagen` (varchar, nullable): Imagen del usuario (opcional).
+  - `activo` (tinyint): Indica si el usuario está activo (1) o inactivo (0).
 
-4. **reclamosTipo**: Define los diferentes tipos de reclamos. Cada reclamo en la tabla `reclamos` está asociado a un tipo de reclamo.
+### 2. **usuariosTipo**
+Define los diferentes tipos de usuarios (cliente, empleado, administrador). Los usuarios en la tabla `usuarios` se asocian a un tipo de usuario mediante una clave foránea.
 
-5. **reclamosEstado**: Define los posibles estados de un reclamo (abierto, cerrado, cancelado, etc.). Cada reclamo en la tabla `reclamos` tiene un estado asociado.
+- **Campos**:
+  - `idTipoUsuario` (int): ID único del tipo de usuario.
+  - `descripcion` (varchar): Descripción del tipo de usuario (ej. Cliente, Empleado, Administrador).
+  - `activo` (tinyint): Indica si el tipo de usuario está activo.
 
-6. **oficinas**: Almacena información sobre las oficinas de la concesionaria, que pueden estar relacionadas con los reclamos o los usuarios.
+### 3. **reclamos**
+Almacena los reclamos realizados por los usuarios. Cada reclamo está asociado a un usuario creador, un tipo de reclamo y un estado.
+
+- **Campos**:
+  - `idReclamo` (int): ID único del reclamo.
+  - `asunto` (varchar): Asunto del reclamo.
+  - `descripcion` (varchar, nullable): Descripción detallada del reclamo.
+  - `fechaCreado` (datetime): Fecha en que se creó el reclamo.
+  - `fechaFinalizado` (datetime, nullable): Fecha en que se finalizó el reclamo (si aplica).
+  - `fechaCancelado` (datetime, nullable): Fecha en que se canceló el reclamo (si aplica).
+  - `idReclamoEstado` (int): Estado actual del reclamo (referencia a `reclamos_estado`).
+  - `idReclamoTipo` (int): Tipo del reclamo (referencia a `reclamos_tipo`).
+  - `idUsuarioCreador` (int): Usuario que creó el reclamo (referencia a `usuarios`).
+  - `idUsuarioFinalizador` (int, nullable): Usuario que finalizó o cerró el reclamo (referencia a `usuarios`).
+
+### 4. **reclamos_tipo**
+Define los diferentes tipos de reclamos que pueden ser registrados.
+
+- **Campos**:
+  - `idReclamosTipo` (int): ID único del tipo de reclamo.
+  - `descripcion` (varchar): Descripción del tipo de reclamo (ej. Falla de motor, Falla de frenos).
+  - `activo` (tinyint): Indica si el tipo de reclamo está activo.
+
+### 5. **reclamos_estado**
+Define los posibles estados que puede tener un reclamo.
+
+- **Campos**:
+  - `idReclamosEstado` (int): ID único del estado del reclamo.
+  - `descripcion` (varchar): Descripción del estado (ej. Creado, En Proceso, Cancelado, Finalizado).
+  - `activo` (tinyint): Indica si el estado está activo.
+
+### 6. **oficinas**
+Almacena información sobre las oficinas de la concesionaria. Estas oficinas pueden estar relacionadas con los reclamos o los usuarios.
+
+- **Campos**:
+  - `idOficina` (int): ID único de la oficina.
+  - `nombre` (varchar): Nombre de la oficina (ej. Dpto. de Taller, Dpto. de Garantías).
+  - `idReclamoTipo` (int): Tipo de reclamo relacionado con esta oficina (referencia a `reclamos_tipo`).
+  - `activo` (tinyint): Indica si la oficina está activa.
+
+### 7. **usuarios_oficinas**
+Relaciona a los usuarios con las oficinas en las que trabajan.
+
+- **Campos**:
+  - `idUsuarioOficina` (int): ID único de la relación.
+  - `idUsuario` (int): ID del usuario (referencia a `usuarios`).
+  - `idOficina` (int): ID de la oficina (referencia a `oficinas`).
+  - `activo` (tinyint): Indica si la relación usuario-oficina está activa.
 
 ### Relaciones
+- usuarios está relacionado con usuariosTipo a través de idTipoUsuario.
+- reclamos está relacionado con usuarios a través de idUsuarioCreador e idUsuarioFinalizador.
+- reclamos está relacionado con reclamos_estado a través de idReclamoEstado.
+- reclamos está relacionado con reclamos_tipo a través de idReclamoTipo.
+- usuarios_oficinas está relacionado con usuarios y oficinas.
 
-- La tabla `usuarios` tiene una relación de muchos a uno con la tabla `usuariosTipo`, ya que varios usuarios pueden tener el mismo tipo.
-- La tabla `reclamos` tiene relaciones de muchos a uno con las tablas `usuarios`, `reclamosTipo` y `reclamosEstado`, indicando que un reclamo es creado por un usuario, tiene un tipo y un estado específico.
-
-### Ejemplo de Creación de Tablas
-
-```sql
-CREATE TABLE IF NOT EXISTS usuarios (
-    idUsuario int AUTO_INCREMENT NOT NULL UNIQUE,
-    nombre varchar(256) NOT NULL,
-    correoElectronico varchar(256) NOT NULL UNIQUE,
-    contraseña varchar(256) NOT NULL,
-    idUsuarioTipo int NOT NULL,
-    PRIMARY KEY (idUsuario),
-    FOREIGN KEY (idUsuarioTipo) REFERENCES usuariosTipo(idUsuarioTipo)
-);
-
-CREATE TABLE IF NOT EXISTS reclamos (
-    idReclamo int AUTO_INCREMENT NOT NULL UNIQUE,
-    asunto varchar(256) NOT NULL,
-    descripcion varchar(256),
-    fechaCreado datetime NOT NULL,
-    idUsuarioCreador int NOT NULL,
-    idReclamoTipo int NOT NULL,
-    idReclamoEstado int NOT NULL,
-    PRIMARY KEY (idReclamo),
-    FOREIGN KEY (idUsuarioCreador) REFERENCES usuarios(idUsuario),
-    FOREIGN KEY (idReclamoTipo) REFERENCES reclamosTipo(idReclamoTipo),
-    FOREIGN KEY (idReclamoEstado) REFERENCES reclamosEstado(idReclamoEstado)
-);
-```
+---
   
 ## Configuración del Entorno
 
@@ -182,6 +146,10 @@ DB_NAME=tu_base_de_datos
 EMAIL_USER=concesionaria.prog3@gmail.com 
 
 EMAIL_PASS=comq xjcs uurg eqkp
+
+SECRET_KEY=tu_clave_secreta
+
+TOKEN_EXPIRATION=2h
 ```
 
 
@@ -198,7 +166,7 @@ Con esta configuración, la API estará lista para gestionar reclamos en tu conc
 ---
 
 ## Proyecto realizado por
-`Fernanda Elola, Diego Lalanda, Nahuel Pereyra, Damian Fernandez.`
+`Fernanda Elola, Diego Lalanda, Nahuel Pereyra.`
 
 *Para la asignatura **Programación 3** de la **Tecnicatura Universitaria en Desarrollo Web***
 
