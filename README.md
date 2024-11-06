@@ -145,7 +145,7 @@ DB_NAME=tu_base_de_datos
 
 EMAIL_USER=concesionaria.prog3@gmail.com 
 
-EMAIL_PASS=comq xjcs uurg eqkp
+EMAIL_PASSWORD=comq xjcs uurg eqkp
 
 SECRET_KEY=tu_clave_secreta
 
