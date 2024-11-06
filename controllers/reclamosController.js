@@ -136,7 +136,6 @@ export default class ReclamosController {
         if (!reclamo) {
             return res.status(404).json({
                 message: 'Reclamo no encontrado o no pertenece al usuario indicado.',
-                error: 'No se encontró el reclamo o el reclamo no pertenece al usuario indicado.'
             });
         }
     
@@ -145,16 +144,12 @@ export default class ReclamosController {
 
     cancelarReclamo = async (req, res) => {
         const { idReclamo } = req.params;
-        const idUsuarioCancelador = req.user?.idUsuario; // ID del usuario que cancela el reclamo
+        const idUsuarioCancelador = req.user?.idUsuario;
     
         try {
-            // Buscar el reclamo por ID
-            const reclamo = await this.reclamoService.findById(idReclamo);
-            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado' });
-    
-
-    
-            // Cancelar el reclamo actualizando su estado y fecha de cancelación
+            const reclamo = await this.reclamoService.findByIdAndCreador(idReclamo, idUsuarioCancelador);
+            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado o no pertenece al usuario indicado.' });
+            
             await this.reclamoService.cancelarReclamo(idReclamo, idUsuarioCancelador);
             res.status(200).json({ message: 'Reclamo cancelado exitosamente' });
         } catch (error) {
@@ -162,8 +157,6 @@ export default class ReclamosController {
             res.status(500).json({ message: 'Error al cancelar el reclamo', error: error.message });
         }
     };
-    
-    
 
     atenderReclamos = async (req, res) => {
         const { idEmpleado } = req.params; 
