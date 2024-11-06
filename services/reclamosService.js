@@ -1,62 +1,59 @@
-import connectToDatabase from '../config/db.js';
+import ReclamosData from '../database/reclamosData.js';
 
 export default class ReclamoService {
     async findById(idReclamo) {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamos WHERE idReclamo = ?';
-        const [rows] = await connection.execute(query, [idReclamo]);
-        return rows[0];
+        return await ReclamosData.findById(idReclamo);
     }
 
     async findAll() {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM reclamos';
-        const [rows] = await connection.execute(query);
-        return rows;
+        return await ReclamosData.findAll();
     }
 
     async create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador) {
-        const connection = await connectToDatabase();
-        const query = 'INSERT INTO reclamos (asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador) VALUES (?, ?, ?, ?, ?, ?)';
-        await connection.execute(query, [asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador]);
+        await ReclamosData.create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador);
     }
 
     async update(idReclamo, asunto, descripcion) {
-        const connection = await connectToDatabase();
-        const query = 'UPDATE reclamos SET asunto = ?, descripcion = ? WHERE idReclamo = ?';
-        await connection.execute(query, [asunto, descripcion, idReclamo]);
-    }
-
-    async destroy(idReclamo) {
-        const connection = await connectToDatabase();
-        const query = 'DELETE FROM reclamos WHERE idReclamo = ?';
-        await connection.execute(query, [idReclamo]);
+        await ReclamosData.update(idReclamo, asunto, descripcion);
     }
 
     async updateEstado(idReclamo, nuevoEstado) {
-        const connection = await connectToDatabase();
-        const query = 'UPDATE reclamos SET idReclamoEstado = ? WHERE idReclamo = ?';
-        await connection.execute(query, [nuevoEstado, idReclamo]);
+        await ReclamosData.updateEstado(idReclamo, nuevoEstado);
     }
 
     async findUsuarioById(idUsuario) {
-        const connection = await connectToDatabase();
-        const query = 'SELECT * FROM usuarios WHERE idUsuario = ?';
-        const [rows] = await connection.execute(query, [idUsuario]);
-        return rows[0];
+        return await ReclamosData.findUsuarioById(idUsuario);
     }
 
     async getEstadoDescripcion(idReclamoEstado) {
-        const connection = await connectToDatabase();
-        const query = `SELECT descripcion FROM reclamosEstado WHERE idReclamoEstado = ?`;
-        const [rows] = await connection.execute(query, [idReclamoEstado]);
-        return rows.length > 0 ? rows[0].descripcion : null;
+        return await ReclamosData.getEstadoDescripcion(idReclamoEstado);
     }
 
     async getTipoDescripcion(idReclamoTipo) {
-        const connection = await connectToDatabase();
-        const query = `SELECT descripcion FROM reclamosTipo WHERE idReclamoTipo = ?`;
-        const [rows] = await connection.execute(query, [idReclamoTipo]);
-        return rows.length > 0 ? rows[0].descripcion : null;
+        return await ReclamosData.getTipoDescripcion(idReclamoTipo);
     }
+
+    async cancelarReclamo(idReclamo, idUsuarioCancelador) {
+        await ReclamosData.cancelarReclamo(idReclamo, idUsuarioCancelador);
+    }
+
+    // Obtener la oficina asociada a un empleado
+    async getOficinaByEmpleado(idEmpleado) {
+        try {
+            return await ReclamosData.getOficinaByEmpleado(idEmpleado);
+        } catch (error) {
+            throw new Error('Error al obtener la oficina del empleado');
+        }
+    }
+
+    // Método para obtener los reclamos por oficina
+    async findByOficina(idOficina) {
+        try {
+            const reclamos = await ReclamosData.findByOficina(idOficina);
+            return reclamos;
+        } catch (error) {
+            throw new Error('Error al obtener los reclamos de la oficina');
+        }
+    }
+    
 }

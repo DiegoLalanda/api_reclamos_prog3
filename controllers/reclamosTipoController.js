@@ -45,13 +45,3 @@ export const updateReclamosTipo = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-export const deleteReclamosTipo = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await reclamosTipoService.delete(id);
-        res.status(200).json({ message: `Reclamo Tipo con id ${id} eliminado correctamente` });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
