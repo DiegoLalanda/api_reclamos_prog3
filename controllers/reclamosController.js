@@ -129,16 +129,18 @@ export default class ReclamosController {
 
     consultarEstadoReclamo = async (req, res) => {
         const { idReclamo } = req.params;
-        try {
-            const reclamo = await this.reclamoService.findById(idReclamo);
-            if (!reclamo) {
-                return res.status(404).json({ message: 'Reclamo no encontrado' });
-            }
-            res.status(200).json(reclamo);
-        } catch (error) {
-            console.error('Error al consultar el estado del reclamo:', error);
-            res.status(500).json({ message: 'Error al consultar el estado del reclamo', error: error.message });
+        const idUsuarioCancelador = req.user?.idUsuario;
+    
+        const reclamo = await this.reclamoService.findByIdAndCreador(idReclamo, idUsuarioCancelador);
+    
+        if (!reclamo) {
+            return res.status(404).json({
+                message: 'Reclamo no encontrado o no pertenece al usuario indicado.',
+                error: 'No se encontró el reclamo o el reclamo no pertenece al usuario indicado.'
+            });
         }
+    
+        res.json(reclamo);
     };
 
     cancelarReclamo = async (req, res) => {
