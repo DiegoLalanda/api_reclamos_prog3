@@ -25,7 +25,7 @@ protectedRoutes.put('/reclamos/:idReclamo/estado', reclamosController.actualizar
 protectedRoutes.get('/oficina/empleado/reclamo', isEmployee, reclamosController.findReclamosByOficina); 
 
 // Ruta para descargar el informe PDF
-protectedRoutes.put('/reclamos/:idReclamo/estado',isClient, updateEstadoReclamoValidator, errorMiddleware, reclamosController.actualizarEstadoReclamo);
+protectedRoutes.put('/reclamos/:idReclamo/estado',isEmployee, updateEstadoReclamoValidator, errorMiddleware, reclamosController.actualizarEstadoReclamo);
 
 router.use('/secure', protectedRoutes);
 
