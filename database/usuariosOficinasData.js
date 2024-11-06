@@ -13,7 +13,7 @@ export default class UsuariosOficinasData {
     // Obtener una relación usuario-oficina por ID
     static async findById(id) {
         const connection = await connectToDatabase();
-        const query = 'SELECT * FROM usuarios_oficinas WHERE idUsuarioOficina = ?';
+        const query = 'SELECT * FROM usuarios_oficinas WHERE idUsuarioOficina = ?  AND activo = 1';
         const [rows] = await connection.execute(query, [id]);
         return rows[0];
     }

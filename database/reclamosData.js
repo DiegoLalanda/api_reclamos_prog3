@@ -29,9 +29,20 @@ export default class ReclamosData {
 
     static async updateEstado(idReclamo, nuevoEstado) {
         const connection = await connectToDatabase();
-        const query = 'UPDATE reclamos SET idReclamoEstado = ? WHERE idReclamo = ?';
-        await connection.execute(query, [nuevoEstado, idReclamo]);
-    }
+    
+        let query;
+        let params;
+    
+        if (nuevoEstado === '4') {
+            query = 'UPDATE reclamos SET idReclamoEstado = ?, fechaFinalizado = NOW() WHERE idReclamo = ?';
+            params = [nuevoEstado, idReclamo];
+        } else {
+            query = 'UPDATE reclamos SET idReclamoEstado = ? WHERE idReclamo = ?';
+            params = [nuevoEstado, idReclamo];
+        }
+    
+        await connection.execute(query, params);
+    }    
 
     static async cancelarReclamo(idReclamo, idUsuarioCancelador) {
         const connection = await connectToDatabase();
