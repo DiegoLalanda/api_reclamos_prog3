@@ -129,30 +129,27 @@ export default class ReclamosController {
 
     consultarEstadoReclamo = async (req, res) => {
         const { idReclamo } = req.params;
-        try {
-            const reclamo = await this.reclamoService.findById(idReclamo);
-            if (!reclamo) {
-                return res.status(404).json({ message: 'Reclamo no encontrado' });
-            }
-            res.status(200).json(reclamo);
-        } catch (error) {
-            console.error('Error al consultar el estado del reclamo:', error);
-            res.status(500).json({ message: 'Error al consultar el estado del reclamo', error: error.message });
+        const idUsuarioCancelador = req.user?.idUsuario;
+    
+        const reclamo = await this.reclamoService.findByIdAndCreador(idReclamo, idUsuarioCancelador);
+    
+        if (!reclamo) {
+            return res.status(404).json({
+                message: 'Reclamo no encontrado o no pertenece al usuario indicado.',
+            });
         }
+    
+        res.json(reclamo);
     };
 
     cancelarReclamo = async (req, res) => {
         const { idReclamo } = req.params;
-        const idUsuarioCancelador = req.user?.idUsuario; // ID del usuario que cancela el reclamo
+        const idUsuarioCancelador = req.user?.idUsuario;
     
         try {
-            // Buscar el reclamo por ID
-            const reclamo = await this.reclamoService.findById(idReclamo);
-            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado' });
-    
-
-    
-            // Cancelar el reclamo actualizando su estado y fecha de cancelación
+            const reclamo = await this.reclamoService.findByIdAndCreador(idReclamo, idUsuarioCancelador);
+            if (!reclamo) return res.status(404).json({ message: 'Reclamo no encontrado o no pertenece al usuario indicado.' });
+            
             await this.reclamoService.cancelarReclamo(idReclamo, idUsuarioCancelador);
             res.status(200).json({ message: 'Reclamo cancelado exitosamente' });
         } catch (error) {
@@ -160,8 +157,6 @@ export default class ReclamosController {
             res.status(500).json({ message: 'Error al cancelar el reclamo', error: error.message });
         }
     };
-    
-    
 
     atenderReclamos = async (req, res) => {
         const { idEmpleado } = req.params; 

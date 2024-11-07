@@ -5,6 +5,23 @@ export default class ReclamoService {
         return await ReclamosData.findById(idReclamo);
     }
 
+    async findByIdAndCreador(idReclamo, idCreador) {
+        try {
+            const reclamo = await ReclamosData.findById(idReclamo);
+            if (!reclamo) {
+                return null;
+            }
+    
+            if (reclamo.idUsuarioCreador !== idCreador) {
+                return null;
+            }
+    
+            return reclamo;
+        } catch (error) {
+            return null;
+        }
+    }
+    
     async findAll() {
         return await ReclamosData.findAll();
     }
@@ -54,6 +71,5 @@ export default class ReclamoService {
         } catch (error) {
             throw new Error('Error al obtener los reclamos de la oficina');
         }
-    }
-    
+    } 
 }
