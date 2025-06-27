@@ -1,3 +1,43 @@
-package-lock.json
-node_modules
+
+# Dependencias
+/node_modules
+
+# Archivos de Log
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Archivos de entorno - ¡MUY IMPORTANTE!
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Directorios de build (aunque no los uses, es buena práctica)
+/dist
+/build
+
+# Reportes de cobertura de tests
+/coverage
+
+# Cache de editores
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

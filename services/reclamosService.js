@@ -1,75 +1,85 @@
-import ReclamosData from '../database/reclamosData.js';
+import db from '../models/index.js';
+const { Reclamo, Usuario, Oficina, ReclamoTipo, ReclamoEstado } = db;
 
 export default class ReclamoService {
     async findById(idReclamo) {
-        return await ReclamosData.findById(idReclamo);
+        return await Reclamo.findByPk(idReclamo, {
+            include: [
+                { model: Usuario, as: 'creador' },
+                { model: ReclamoTipo },
+                { model: ReclamoEstado }
+            ]
+        });
     }
 
     async findByIdAndCreador(idReclamo, idCreador) {
-        try {
-            const reclamo = await ReclamosData.findById(idReclamo);
-            if (!reclamo) {
-                return null;
+        return await Reclamo.findOne({
+            where: {
+                idReclamo,
+                idUsuarioCreador: idCreador,
             }
-    
-            if (reclamo.idUsuarioCreador !== idCreador) {
-                return null;
-            }
-    
-            return reclamo;
-        } catch (error) {
-            return null;
-        }
+        });
     }
     
     async findAll() {
-        return await ReclamosData.findAll();
+        return await Reclamo.findAll({
+            include: [
+                { model: Usuario, as: 'creador', attributes: ['nombre', 'apellido'] },
+                { model: ReclamoTipo, attributes: ['descripcion'] },
+                { model: ReclamoEstado, attributes: ['descripcion'] }
+            ]
+        });
     }
 
     async create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador) {
-        await ReclamosData.create(asunto, descripcion, fechaCreado, idReclamoEstado, idReclamoTipo, idUsuarioCreador);
+        return await Reclamo.create({
+            asunto,
+            descripcion,
+            fechaCreado,
+            idReclamoEstado,
+            idReclamoTipo,
+            idUsuarioCreador,
+        });
     }
 
     async update(idReclamo, asunto, descripcion) {
-        await ReclamosData.update(idReclamo, asunto, descripcion);
+        return await Reclamo.update({ asunto, descripcion }, { where: { idReclamo } });
     }
 
     async updateEstado(idReclamo, nuevoEstado) {
-        await ReclamosData.updateEstado(idReclamo, nuevoEstado);
+        const updateData = { idReclamoEstado: nuevoEstado };
+        if (parseInt(nuevoEstado, 10) === 4) {
+            updateData.fechaFinalizado = new Date();
+        }
+        return await Reclamo.update(updateData, { where: { idReclamo } });
+    }    
+
+    async cancelarReclamo(idReclamo, idUsuarioCancelador) {
+        return await Reclamo.update({
+            idReclamoEstado: 3,
+            fechaCancelado: new Date(),
+            idUsuarioFinalizador: idUsuarioCancelador,
+        }, { where: { idReclamo } });
     }
 
     async findUsuarioById(idUsuario) {
-        return await ReclamosData.findUsuarioById(idUsuario);
+        return await Usuario.findByPk(idUsuario);
     }
 
-    async getEstadoDescripcion(idReclamoEstado) {
-        return await ReclamosData.getEstadoDescripcion(idReclamoEstado);
-    }
-
-    async getTipoDescripcion(idReclamoTipo) {
-        return await ReclamosData.getTipoDescripcion(idReclamoTipo);
-    }
-
-    async cancelarReclamo(idReclamo, idUsuarioCancelador) {
-        await ReclamosData.cancelarReclamo(idReclamo, idUsuarioCancelador);
-    }
-
-    // Obtener la oficina asociada a un empleado
     async getOficinaByEmpleado(idEmpleado) {
-        try {
-            return await ReclamosData.getOficinaByEmpleado(idEmpleado);
-        } catch (error) {
-            throw new Error('Error al obtener la oficina del empleado');
-        }
+        const usuario = await Usuario.findByPk(idEmpleado, {
+            include: { model: Oficina } // Incluimos las oficinas asociadas
+        });
+        // Devolvemos la primera oficina encontrada, si existe
+        return usuario?.Oficinas?.[0];
     }
 
-    // Método para obtener los reclamos por oficina
     async findByOficina(idOficina) {
-        try {
-            const reclamos = await ReclamosData.findByOficina(idOficina);
-            return reclamos;
-        } catch (error) {
-            throw new Error('Error al obtener los reclamos de la oficina');
-        }
+        const oficina = await Oficina.findByPk(idOficina);
+        if (!oficina) throw new Error('Oficina no encontrada');
+
+        return await Reclamo.findAll({
+            where: { idReclamoTipo: oficina.idReclamoTipo }
+        });
     } 
 }

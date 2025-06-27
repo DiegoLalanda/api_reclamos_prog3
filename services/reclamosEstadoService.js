@@ -1,24 +1,21 @@
-// services/reclamosEstadoService.js
-import ReclamosEstadoData from '../database/reclamosEstadoData.js';
+import db from '../models/index.js';
+const { ReclamoEstado } = db;
 
 export default class ReclamosEstadoService {
     async findAll() {
-        return await ReclamosEstadoData.findAll();
+        return await ReclamoEstado.findAll();
     }
-
     async findById(id) {
-        return await ReclamosEstadoData.findById(id);
+        return await ReclamoEstado.findByPk(id);
     }
-
     async create(reclamoEstado) {
-        await ReclamosEstadoData.create(reclamoEstado);
+        return await ReclamoEstado.create(reclamoEstado);
     }
-
     async update(id, reclamoEstado) {
-        await ReclamosEstadoData.update(id, reclamoEstado);
+        await ReclamoEstado.update(reclamoEstado, { where: { idReclamoEstado: id } });
+        return this.findById(id);
     }
-
     async delete(id) {
-        await ReclamosEstadoData.delete(id);
+        return await ReclamoEstado.destroy({ where: { idReclamoEstado: id } });
     }
 }

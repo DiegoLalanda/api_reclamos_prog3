@@ -1,31 +1,21 @@
-// services/usuariosOficinasService.js
-import UsuariosOficinasData from '../database/usuariosOficinasData.js';
+import db from '../models/index.js';
+const { UsuarioOficina } = db;
 
 export default class UsuariosOficinasService {
-    // Obtener todas las relaciones de usuarios y oficinas
     async findAll() {
-        return await UsuariosOficinasData.findAll();
+        return await UsuarioOficina.findAll();
     }
-
-    // Obtener una relación usuario-oficina por ID
     async findById(id) {
-        return await UsuariosOficinasData.findById(id);
+        return await UsuarioOficina.findByPk(id);
     }
-
-    // Crear una nueva relación usuario-oficina
-    async create(usuariosOficinas) {
-        const { idUsuario, idOficina, activo } = usuariosOficinas;
-        await UsuariosOficinasData.create(idUsuario, idOficina, activo);
+    async create(data) {
+        return await UsuarioOficina.create(data);
     }
-
-    // Actualizar una relación usuario-oficina
-    async update(id, usuariosOficinas) {
-        const { idUsuario, idOficina, activo } = usuariosOficinas;
-        await UsuariosOficinasData.update(id, idUsuario, idOficina, activo);
+    async update(id, data) {
+        await UsuarioOficina.update(data, { where: { idUsuarioOficina: id } });
+        return this.findById(id);
     }
-
-    // Eliminar una relación usuario-oficina
     async delete(id) {
-        await UsuariosOficinasData.delete(id);
+        return await UsuarioOficina.destroy({ where: { idUsuarioOficina: id } });
     }
 }

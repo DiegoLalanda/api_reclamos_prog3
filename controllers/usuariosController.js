@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import UsuariosServices from "../services/usuariosService.js";
 
 export default class UsuariosController {
@@ -15,7 +14,8 @@ export default class UsuariosController {
             const pOrder = order || "idUsuario";
             const pAsc = asc === "false" ? false : true;
 
-            const users = await this.service.findAll({ nombre, apellido }, pLimit, pOffset, pOrder, pAsc);
+            // Filtramos para obtener solo clientes (tipo 3)
+            const users = await this.service.findAll({ nombre, apellido, idTipoUsuario: 3 }, pLimit, pOffset, pOrder, pAsc);
 
             res.status(200).json(users);
         } catch (error) {
@@ -37,10 +37,10 @@ export default class UsuariosController {
                 return res.status(404).json({ status: "Fallo", data: { error: "Usuario no encontrado." } });
             }
     
-            const isAdmin = req.user && req.user.idTipoUsuario === 1;
+            const isAdminReq = req.user && req.user.idTipoUsuario === 1;
     
-            const responseData = isAdmin
-                ? user 
+            const responseData = isAdminReq
+                ? user.get({ plain: true })
                 : {
                       nombre: user.nombre,
                       apellido: user.apellido,
@@ -53,6 +53,7 @@ export default class UsuariosController {
         }
     };    
 
+    // Este método ahora es específicamente para crear CLIENTES
     create = async (req, res) => {
         try {
             const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
@@ -60,26 +61,59 @@ export default class UsuariosController {
             if (!nombre || !apellido || !correoElectronico || !contrasenia) {
                 return res.status(400).json({
                     status: "Fallo",
-                    data: { error: "Uno de los siguientes datos falta o es vacío: 'nombre', 'apellido', 'correoElectronico', 'contrasenia'." }
+                    data: { error: "Todos los campos son requeridos." }
                 });
             }
     
-            const hashedPassword = await bcrypt.hash(contrasenia, 10); 
-    
+            // El hasheo lo hace el modelo. Pasamos el tipo de usuario CLIENTE (3)
             const newUser = await this.service.create({
                 nombre,
                 apellido,
                 correoElectronico,
-                contrasenia: hashedPassword,
-                idTipoUsuario: 3,
+                contrasenia,
+                idTipoUsuario: 3, // Siempre 3 para el registro de clientes
                 imagen: imagen || null
             });
     
             res.status(201).json({ status: "OK", data: newUser });
         } catch (error) {
+            if (error.name === 'SequelizeUniqueConstraintError') {
+                return res.status(409).json({ status: "Fallo", data: { error: "El correo electrónico ya está en uso." } });
+            }
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }
     };  
+
+    // ¡NUEVO MÉTODO! Para crear administradores
+    createAdmin = async (req, res) => {
+        try {
+            const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+    
+            if (!nombre || !apellido || !correoElectronico || !contrasenia) {
+                return res.status(400).json({
+                    status: "Fallo",
+                    data: { error: "Todos los campos son requeridos." }
+                });
+            }
+
+            // El hasheo lo hace el modelo. Pasamos el tipo de usuario ADMIN (1)
+            const newAdmin = await this.service.create({
+                nombre,
+                apellido,
+                correoElectronico,
+                contrasenia,
+                idTipoUsuario: 1, // Siempre 1 para el registro de administradores
+                imagen: imagen || null
+            });
+    
+            res.status(201).json({ status: "OK", data: newAdmin });
+        } catch (error) {
+            if (error.name === 'SequelizeUniqueConstraintError') {
+                return res.status(409).json({ status: "Fallo", data: { error: "El correo electrónico ya está en uso." } });
+            }
+            res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
+        }
+    };
 
     update = async (req, res) => {
         try {

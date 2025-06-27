@@ -1,26 +1,25 @@
-import mysql from 'mysql2/promise';
+import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-let connection;
+// Validamos que la DATABASE_URL exista
+if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL no está definida en el archivo .env');
+}
 
-const connectToDatabase = async () => {
-    if (!connection) {
-        try {
-            connection = await mysql.createConnection({
-                host: 'localhost',
-                user: process.env.DB_USER,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME,
-            });
-            console.log('Conexión a la base de datos exitosa');
-        } catch (error) {
-            console.error('Error al conectar a la base de datos:', error);
-            throw error;
+// Creamos la instancia de Sequelize
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    dialectOptions: {
+        // Neon y otros proveedores cloud requieren SSL
+        ssl: {
+            require: true,
+            rejectUnauthorized: false // Necesario para evitar errores de certificado
         }
-    }
-    return connection;
-};
+    },
+    logging: false,
+});
 
-export default connectToDatabase; // Exporta la función para conectarte a la DB
+export default sequelize;

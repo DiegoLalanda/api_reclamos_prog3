@@ -14,13 +14,26 @@ export default class AuthController {
 
             const { token, user } = await authService.login(correoElectronico, contrasenia);
             
-            // Configurar la cookie del token JWT
+            // 1. Configurar la cookie del token JWT (se mantiene, es bueno para frontends)
             res.cookie('token', token, {
                 httpOnly: true, 
-                maxAge: 1000 * 60 * 60 * 2 
+                secure: process.env.NODE_ENV === 'production', // true en producción
+                sameSite: 'strict', // Mejora la seguridad
+                maxAge: 1000 * 60 * 60 * 2 // 2 horas
             });
 
-            res.status(200).json({ status: "OK", data: { user } });
+            // 2. ¡CAMBIO CLAVE! Devolver también el token en el cuerpo de la respuesta.
+            //    Y quitamos la contraseña del objeto 'user' que se devuelve.
+            const { contrasenia: _, ...userWithoutPassword } = user;
+
+            res.status(200).json({ 
+                status: "OK", 
+                data: {
+                    message: "Login exitoso. Usa este token para autorizarte en Swagger.",
+                    token: token, // <-- Aquí está el token
+                    user: userWithoutPassword 
+                }
+            });
         } catch (error) {
             res.status(error?.status || 500).json({ status: "Fallo", data: { error: error?.message || error } });
         }

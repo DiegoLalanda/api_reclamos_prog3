@@ -1,26 +1,22 @@
-// services/reclamosTipoService.js
-import ReclamosTipoData from '../database/reclamosTipoData.js';
+import db from '../models/index.js';
+const { ReclamoTipo } = db;
 
 export default class ReclamosTipoService {
     async findAll() {
-        return await ReclamosTipoData.findAll();
+        return await ReclamoTipo.findAll();
     }
-
     async findById(id) {
-        return await ReclamosTipoData.findById(id);
+        return await ReclamoTipo.findByPk(id);
     }
-
     async create(reclamoTipo) {
-        await ReclamosTipoData.create(reclamoTipo);
+        return await ReclamoTipo.create(reclamoTipo);
     }
-
     async update(id, reclamoTipo) {
-        await ReclamosTipoData.update(id, reclamoTipo);
+        await ReclamoTipo.update(reclamoTipo, { where: { idReclamoTipo: id } });
+        return this.findById(id);
     }
-
-    // Método para verificar la existencia de un tipo de reclamo
     async exists(id) {
-        const tipo = await this.findById(id);
-        return !!tipo; // Retorna true si existe, false si no
+        const count = await ReclamoTipo.count({ where: { idReclamoTipo: id } });
+        return count > 0;
     }
 }

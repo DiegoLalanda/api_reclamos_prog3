@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = process.env.SECRET_KEY;
 const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '2h';
@@ -9,7 +8,6 @@ export default class AuthService {
         this.userService = userService;
     }
 
-    // Autenticar usuario y generar JWT
     async login(email, password) {
         const user = await this.userService.findByEmail(email);
     
@@ -17,8 +15,8 @@ export default class AuthService {
             throw { status: 404, message: 'Usuario no encontrado.' };
         }
     
-        // Verifica la contraseña con el hash almacenado
-        const isPasswordValid = await bcrypt.compare(password, user.contrasenia); 
+        //Usamos el método del modelo de Sequelize para validar la contraseña
+        const isPasswordValid = await user.validarContrasenia(password); 
     
         if (!isPasswordValid) {
             throw { status: 401, message: 'Contraseña incorrecta.' };
@@ -36,10 +34,11 @@ export default class AuthService {
             { expiresIn: TOKEN_EXPIRATION }
         );
     
-        return { token, user };
+        // Devolvemos la instancia de Sequelize, que es un objeto con más métodos.
+        // Usamos .get({ plain: true }) para obtener un objeto JSON simple.
+        return { token, user: user.get({ plain: true }) };
     }    
 
-    // Verificar JWT
     verifyToken(token) {
         try {
             return jwt.verify(token, SECRET_KEY);
