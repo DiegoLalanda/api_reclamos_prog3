@@ -1,6 +1,6 @@
 import ReclamoService from '../services/reclamosService.js';
 import EmailService from '../services/emailService.js';
-import PDFUtils from '../utils/PDFUtils.js';
+import PDFUtils from '../utils/pdfUtils.js';
 
 export default class ReclamosController {
     constructor() {
