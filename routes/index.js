@@ -9,10 +9,16 @@ import reclamosEstadoRoutes from './reclamosEstado.js';
 import estadisticasRoutes from './estadisticas.js';
 import empleadosRoutes from './empleados.js';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerDocs } from '../config/swagger.js';
+
 const router = express.Router();
 
 // Definir la versión de la API
 const API_VERSION = 'v1';
+
+// ¡NUEVA RUTA! La documentación ahora vive aquí
+router.use(`/api/${API_VERSION}/api-docs`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Usar las rutas con el prefijo de versión
 router.use(`/api/${API_VERSION}`, usuarioRoutes);

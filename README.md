@@ -18,7 +18,7 @@ Se implementa un **ORM (Sequelize)** y una base de datos **PostgreSQL**, lo que 
 
 ¡Puedes probar toda la API ahora mismo sin instalar nada!
 
-> **[➡️ Acceder a la Documentación Interactiva de la API ⬅️](https://tu-api-en-render.onrender.com/api/v1/api-docs)** 
+> **[➡️ Acceder a la Documentación Interactiva de la API ⬅️](https://api-reclamos-prog3.onrender.com/api/v1/api-docs)** 
 
 Sigue estos 3 simples pasos:
 

@@ -4,8 +4,6 @@ import rutas from './routes/index.js';
 import passportConfig from './config/passport.js';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
-import swaggerUi from 'swagger-ui-express';
-import { swaggerDocs } from './config/swagger.js';
 import { seedDatabase } from './config/seed.js';
 
 const app = express();
@@ -20,9 +18,6 @@ passportConfig(passport);
 
 // Rutas de la API
 app.use('/', rutas);
-
-// Ruta para la documentación de Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 const PORT = process.env.PORT || 3000;
 

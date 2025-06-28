@@ -53,7 +53,7 @@ const swaggerOptions = {
         ],
         servers: [
             { url: 'http://localhost:3000/api/v1', description: 'Servidor Local' },
-            { url: 'https://tu-api-en-render.onrender.com/api/v1', description: 'Servidor de Producción' } // ¡Recuerda cambiar esto!
+            { url: 'https://api-reclamos-prog3.onrender.com/api/v1', description: 'Servidor de Producción' } // ¡Recuerda cambiar esto!
         ],
         components: {
             securitySchemes: {
