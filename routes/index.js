@@ -17,6 +17,32 @@ const router = express.Router();
 // Definir la versión de la API
 const API_VERSION = 'v1';
 
+// --- NUEVO ENDPOINT DE HEALTH CHECK ---
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Verifica el estado del servidor.
+ *     tags: [Health Check]
+ *     description: Endpoint simple para verificar que la API está en funcionamiento. Ideal para servicios de monitoreo como UptimeRobot.
+ *     responses:
+ *       '200':
+ *         description: El servidor está funcionando correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: "ok" }
+ *                 timestamp: { type: string, format: date-time }
+ */
+router.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // ¡NUEVA RUTA! La documentación ahora vive aquí
 router.use(`/api/${API_VERSION}/api-docs`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
